@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %} About {% endblock %}
+
+{% block content %}
+<h1 align="center"> How we determine trustworthiness </h1>
+<strong> First off, we must say that computationally determining the trustworthiness of studies that we find on google scholar isn't the easiest task as there is only so much information at our disposal. There are also very significant markers for trustworthiness that only intelligent you could determine. We have done our best with the tools we have though and sincerely believe that this software will save you some time when consdiering what studies to consider in personal citaitons or research</strong>
+<p> Some jarble about how we used the attributes to conclude how trustworthy we found a study</p>
+
+<br />
+<br />
+<br />
+
+<form method="POST">
+    <h3 align="center"> Enter feedback </h3>
+    <div class = "form-group">
+        <label> Feedback box </label>
+        <input
+            class="form-control"
+            name="feedback"
+            id="feedback"
+            placeholder="Give us your thoughts!"
+            maxlength="100"
+        />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}
