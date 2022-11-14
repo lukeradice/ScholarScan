@@ -4,6 +4,10 @@ from . import db
 class Study(db.Model):
     #creating study entity to store study data in once retrieved from a search
     id = db.Column(db.Integer, primary_key=True)
-    credListed = db.Column(db.Boolean)
-    domainSig = db.Column(db.String(10)) 
+    searchDepth = db.Column(db.Integer)
+    peerReviewed = db.Column(db.Boolean)
+    governmentAffiliation = db.Column(db.Boolean)
+    governmentReputation = db.Column(db.String)
+    authorStudyCount = db.Column(db.Integer)
+
 
