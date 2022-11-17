@@ -6,3 +6,6 @@ app = create_app()
 if __name__ == "__main__":
     #runs flask application, stratup a web server 
     app.run(debug=True)
+
+
+    

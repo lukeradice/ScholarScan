@@ -44,3 +44,4 @@ def scholarScan():
 @views.route("/about", methods=["POST", "GET"])
 def about():
     return render_template("about.html")
+

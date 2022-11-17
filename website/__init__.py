@@ -2,6 +2,7 @@
 from flask import Flask
 #importing SQLAlchemy so I can create my database
 from flask_sqlalchemy import SQLAlchemy
+from os import path
 
 
 db = SQLAlchemy()
@@ -26,6 +27,16 @@ def create_app():
     from .views import views
     app.register_blueprint(views, url_prefix="/")
 
+    from .models import Study, Government, AuthorStudyLink, Author, Organisation
+    create_database(app)
+
     return app
 
 
+#classes/entities for db will have been defined at this point
+def create_database(app):
+    if not path.exists('website/' + DB_NAME):
+        db.create_all(app = app)
+        print('Created Database!')
+#database is created if it doesn't exist, we pass app to make sure the 
+#software knows what the associated software is
