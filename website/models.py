@@ -14,9 +14,11 @@ class Study(db.Model):
 
 class Organisation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    peerReviewed = db.Column(db.Boolean)
-    impactFactor = db.Column(db.Integer)
+    name = db.Column(db.String)
+    #peerReviewed = db.Column(db.Boolean)
+    #impactFactor = db.Column(db.Integer)
     authors = db.relationship('Author')
+    scholar_id = db.Column(db.String)
     
 class Author(db.Model):
     #the same author will have multiple studies so a separate table must be made for them, also a useful place to store other 
@@ -24,7 +26,7 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     authorName = db.Column(db.String(50))
     authorStudyCount = db.Column(db.Integer)
-    journalOrganisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
+    Organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
 
 class AuthorStudyLink(db.Model):
@@ -43,4 +45,7 @@ class Government(db.Model):
     correspondingDomain = db.Column(db.String(5))
     
 
+
+#&"C:\Users\luker\OneDrive\Documents\Software Tools\Sqllite\sqlite-tools-win32-x86-3390400\sqlite3.exe"
+#database tool
 
