@@ -5,27 +5,33 @@ class Study(db.Model):
     #creating study entity to store study data in once retrieved from a search
     id = db.Column(db.Integer, primary_key=True)
     searchDepth = db.Column(db.Integer)
-    governmentAffiliation = db.Column(db.Boolean)
+    governmentAffiliation = db.Column(db.Integer)
     title = db.Column(db.String(50))
     abstract = db.Column(db.String(2000))
-    author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
     government_id = db.Column(db.Integer, db.ForeignKey('government.id'))
+    journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
     authors = db.relationship('AuthorStudyLink')
 
 class Organisation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    #peerReviewed = db.Column(db.Boolean)
+    orgName = db.Column(db.String)
     #impactFactor = db.Column(db.Integer)
-    authors = db.relationship('Author')
     scholar_id = db.Column(db.String)
+    authors = db.relationship('Author')
+    
+
+class Journal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    journalName = db.Column(db.String)
+    #peerReviewed = db.Column(db.Boolean)
+    studies = db.relationship('Study')
     
 class Author(db.Model):
     #the same author will have multiple studies so a separate table must be made for them, also a useful place to store other 
     #information about them to determine their reputation
     id = db.Column(db.Integer, primary_key=True)
     authorName = db.Column(db.String(50))
-    authorStudyCount = db.Column(db.Integer)
+    authorCitations = db.Column(db.Integer)
     Organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
 

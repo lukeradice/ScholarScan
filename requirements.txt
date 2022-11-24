@@ -1,2 +1,5 @@
 flask
-Flask-SQLAlchemy
+flask_sqlalchemy
+scholarly
+tldextract
+sqlite3

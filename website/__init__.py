@@ -24,7 +24,7 @@ def create_app():
     from .views import views
     app.register_blueprint(views, url_prefix="/")
 
-    from .models import Study, Government, AuthorStudyLink, Author, Organisation
+    from .models import Study, Government, AuthorStudyLink, Author, Organisation, Journal
     create_database(app)
 
     return app
