@@ -3,6 +3,7 @@ from flask import Flask
 #importing SQLAlchemy so I can create my database
 from flask_sqlalchemy import SQLAlchemy
 from os import path
+from scholarly import scholarly, ProxyGenerator 
 
 
 db = SQLAlchemy()
@@ -19,6 +20,11 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     #this links the app with the database
     db.init_app(app)
+    pg = ProxyGenerator() 
+    scholarly.use_proxy(pg)
+    success = pg.ScraperAPI('f171d0c5dd2ec4eb81c87ab25875fdd9')
+    if success:
+        print("successful proxy connection")
 
 
     from .views import views
@@ -36,4 +42,18 @@ def create_app():
 def create_database(app):
     if not path.exists('website/' + DB_NAME):
         db.create_all(app = app)
+        from .models import Government
+        #allows the adding of the domains to the database outside of a view function, a flask sql_alchemy requirement
+        with app.app_context():
+            myfile = open("correspondingdomain.txt", "r")
+            myline = myfile.readline()
+            while myline:
+                pair = myline.split(",")
+                correspondingDomain = pair[0].strip()
+                government = pair[1].strip()
+                new_government = Government(government=government, correspondingDomain=correspondingDomain)
+                db.session.add(new_government)
+                db.session.commit()
+                myline = myfile.readline()
+            myfile.close()  
         print('Created Database!')

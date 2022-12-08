@@ -249,3 +249,5 @@
 .zm,Zambia
 .zw,Zimbabwe
 .com,USA
+.net,USA
+.org,USA

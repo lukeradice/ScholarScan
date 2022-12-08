@@ -34,12 +34,11 @@ def scholarScan():
         if result.state:
             #search is intiated
             flash("Search intiated", category="success")
-            search(searchQuery, peerReviewed, governmentAffiliation, result.overNStudies, result.resultAmount) 
-        else:
-            None
+            searchedStudies = search(searchQuery, peerReviewed, governmentAffiliation, result.overNStudies, result.resultAmount) 
+            return render_template("main.html", searchedStudies=searchedStudies)
             #some sort of reset needed, as you want the ability to reinput need understanding of decorator, flashing of error will occur in searchCheck module
-
-    return render_template("main.html")
+        
+    return render_template("main.html", searchedStudies=[])
 
 @views.route("/about", methods=["POST", "GET"])
 def about():

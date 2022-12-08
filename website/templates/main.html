@@ -7,7 +7,7 @@
 <br />
 <form class="form-border-enforcer form-inline" method="POST">
     <div class = "form-group">
-        <input class="form-control-lg" name="searchQuery" id="searchQuery" placeholder="Search ScholarScan" maxlength="40">
+        <input class="form-control-lg" name="searchQuery" id="searchQuery" placeholder="Search ScholarScan" maxlength="80">
         <button type="submit" class="btn btn-success ml-2 mb-4">GO</button>
         <br />
         <div class="form-check ml-3 mb-2">
@@ -37,4 +37,22 @@
     </div>
 </form>
 <br />
+<br />
+<h1 align="center">Results</h1>
+<ul class="list-group list-group-flush", id="results">
+  <li class="list-group-item">
+    <p> they should appear under here</p>
+    {% for study in searchedStudies %}
+      <p>Title: {{ study.title }}</p>
+      <p>Abstract: {{ study.abstract }}</p>
+      <p>Authors: {{ study.authors }}</p>
+      <p>Journal: {{ study.journal }}</p>
+      <p>Country: {{ study.countryToFind }}</p>
+      <p>Gov: {{ study.levelOfAffiliation }}</p>
+      <p>SD: {{ study.searchDepth }}</p>
+    {% endfor %}
+  </li>
+</ul>
 {% endblock %}
+
+title, abstract, levelOfAffiliation, journal, searchIterations, authors, countryToFind

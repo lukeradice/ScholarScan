@@ -12,12 +12,18 @@ class Study(db.Model):
     journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
     authors = db.relationship('AuthorStudyLink')
 
+    def __repr__(self):
+        return f'<Study: {self.title, self.searchDepth, self.abstract, self.governmentAffiliation, self.government_id}>'
+
 class Organisation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     orgName = db.Column(db.String)
     #impactFactor = db.Column(db.Integer)
     scholar_id = db.Column(db.String)
     authors = db.relationship('Author')
+
+    def __repr__(self):
+        return f'<Organisation: {self.orgName}>'
     
 
 class Journal(db.Model):
@@ -25,6 +31,9 @@ class Journal(db.Model):
     journalName = db.Column(db.String)
     #peerReviewed = db.Column(db.Boolean)
     studies = db.relationship('Study')
+
+    def __repr__(self):
+        return f'<Journal: {self.journalName}>'
     
 class Author(db.Model):
     #the same author will have multiple studies so a separate table must be made for them, also a useful place to store other 
@@ -32,8 +41,11 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     authorName = db.Column(db.String(50))
     authorCitations = db.Column(db.Integer)
-    Organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
+    organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
+
+    def __repr__(self):
+        return f'<Author: {self.authorName, self.authorCitations, self.Organisation_id}>'
 
 class AuthorStudyLink(db.Model):
     #link table for Study and Author entities as they have a many to many relationship
@@ -42,6 +54,10 @@ class AuthorStudyLink(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'), primary_key=True)
     study_id = db.Column(db.Integer, db.ForeignKey('study.id'), primary_key = True)
 
+    def __repr__(self):
+        return f'<AuthorStudyLink: {self.author_id, self.study_id}>'
+
+
 class Government(db.Model):
     #the same goverment will have multiple studies so a separate table must be made for them, also a useful place to store other 
     #information about them to determine their reputation
@@ -49,6 +65,9 @@ class Government(db.Model):
     government = db.Column(db.String(20))
     governmentReputation = db.Column(db.Integer)
     correspondingDomain = db.Column(db.String(5))
+
+    def __repr__(self):
+        return f'<Government: {self.government, self.correspondingDomain}>'
     
 
 

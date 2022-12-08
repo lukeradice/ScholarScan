@@ -35,3 +35,4 @@ class validationResponse():
         self.state = state
         self.overNStudies = overNStudies
         self.resultAmount = resultAmount
+
