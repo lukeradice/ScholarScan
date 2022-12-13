@@ -5,18 +5,19 @@ import tldextract
 import sqlite3
 from scholarly import scholarly
 
-def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resultAmount):
+def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNStudiesFilter, resultAmount):
     # studyDB = Government.query.all()
     # print(studyDB)
     searchedStudies = []
-    searchIterations = 1
+    searchIterations = 3
     if resultAmount > searchIterations:
          searchIterations = resultAmount
     studies = scholarly.search_pubs(str(searchQuery))
     for i in range (0, searchIterations):
         print("iteration", i)
         #this won't run if my api credits have been used up
-        study = next(studies)
+        studyUnfull = next(studies)
+        study = scholarly.fill(studyUnfull)
         print(study)
         if study:
             #adding information for study entity
@@ -24,12 +25,17 @@ def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resul
             title = study.get('bib').get('title')
             if not studyExists(title):
                 abstract = study.get('bib').get('abstract')
+                pub_year = study.get('bib').get('pub_year')
+                num_citations = study.get('num_citations')
+                publisher = study.get('bib').get('publisher')
+                gs_rank = study.get('gs_rank')
+
                 # governmentAffiliation = attributeHandler.governmentAffiliatior(study.get('pub_url'))
                 # levelOfAffiliation = governmentAffiliation.levelOfAffiliation
                 governmentFind = attributeHandler()
                 governmentAffiliation = governmentFind.governmentAffiliatior(study.get('pub_url'))
                 levelOfAffiliation = governmentAffiliation.levelOfAffiliation
-                countryToFind = governmentAffiliation.countryToFind
+                government = governmentAffiliation.government
                 government_id = governmentAffiliation.government_id
 
                 #adding the details of the journal and checking to see if info on it is already stored in the database
@@ -50,7 +56,12 @@ def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resul
 
 
                 #back to finishing adding of Study entity details
-                new_study = Study(searchDepth=searchIterations, governmentAffiliation=levelOfAffiliation, title=title, abstract=abstract, government_id=government_id, journal_id=journal_id)
+                pub_year = study.get('bib').get('pub_year')
+                num_citations = study.get('num_citations')
+                publisher = study.get('publisher')
+                gs_rank = study.get('gs_rank')
+                new_study = Study(searchDepth=searchIterations, governmentAffiliation=levelOfAffiliation, title=title, abstract=abstract, pub_year=pub_year, num_citations=num_citations, 
+                publisher=publisher, gs_rank=gs_rank, government_id=government_id, journal_id=journal_id)
                 db.session.add(new_study)
                 db.session.commit()
 
@@ -65,16 +76,16 @@ def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resul
                 print("list of author ids", authorScholarIDs)
                 print("list of authors", authors)
                 #NEED TO CONSIDER WHEN THERE IS A BLANK SCRAPE AS PROCESSING IS INVOLVED
-                authorOrgUpdate = attributeHandler()
-                authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authors)
+                #authorOrgUpdate = attributeHandler()
+                #authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authors)
                     
                 #submitting link table entry
                 #may need a more reliable secondary index than author name, author names could be shared, alternatively I could just set more attributes in the criteria
-                for author in authors:
-                    authorID = db.session.query(Author.id).filter_by(authorName=author).first()
-                    new_authorStudyLink = AuthorStudyLink(author_id=authorID, study_id=studyID)
-                    db.session.add(new_authorStudyLink)
-                    db.session.commit()
+                # for author in authors:
+                #     authorID = db.session.query(Author.id).filter_by(authorName=author).first()
+                #     new_authorStudyLink = AuthorStudyLink(author_id=authorID, study_id=studyID)
+                #     db.session.add(new_authorStudyLink)
+                #     db.session.commit()
                 
                 searchDepth = searchIterations
 
@@ -85,6 +96,10 @@ def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resul
                 fetchedStudy = db.session.query(Study).filter_by(title=title).first()
                 title = fetchedStudy.title
                 abstract = fetchedStudy.abstract
+                pub_year = fetchedStudy.pub_year
+                num_citations = fetchedStudy.num_citations
+                publisher = fetchedStudy.publisher
+                gs_rank = fetchedStudy.gs_rank
                 levelOfAffiliation = fetchedStudy.governmentAffiliation
                 searchDepth = fetchedStudy.searchDepth
 
@@ -105,17 +120,21 @@ def search(searchQuery, peerReviewed, governmentAffiliation, overNStudies, resul
 
                 government_id = fetchedStudy.government_id
                 associatedGovernment = db.session.query(Government).filter_by(id=government_id).first()
-                countryToFind = associatedGovernment.government
+                government = associatedGovernment.government
 
             print("title", title)
             print("abstract", abstract)
+            print("citations", num_citations)
+            print("pub year", pub_year)
+            print("publisher", publisher)
+            print("gs rank", gs_rank)
             print('levelofaffiliation', levelOfAffiliation)
             print("search depth", searchDepth)
             print("journal", journal)
             print("authors", authors)
-            print("country to find", countryToFind)
+            print("government", government)
             #adding information about the study to searchedStudies list after it has been gathered via scraping or database
-            newStudy = SearchResponse(title, abstract, levelOfAffiliation, searchDepth, journal, authors, countryToFind)
+            newStudy = SearchResponse(title, abstract, pub_year, num_citations, publisher, gs_rank, levelOfAffiliation, searchDepth, journal, authors, government)
             searchedStudies.append(newStudy)
             
             ##
@@ -139,12 +158,13 @@ class attributeHandler():
         suffix = '.' + suffix
         print('suffix', suffix)
         countryToFind = Government.query.filter(Government.correspondingDomain == suffix).one()
+        government = countryToFind.government
         if 'edu' in suffix or 'ac' in suffix:
-            return governmentAffiliationResponse(50, countryToFind, countryToFind.id)
+            return governmentAffiliationResponse(50, government, countryToFind.id)
         elif '.gov' in suffix:
-            return governmentAffiliationResponse(100, countryToFind, countryToFind.id)
+            return governmentAffiliationResponse(100, government, countryToFind.id)
         else:
-            return governmentAffiliationResponse(0, countryToFind, countryToFind.id)
+            return governmentAffiliationResponse(0, government, countryToFind.id)
     
     def authorOrgUpdater(self, authorScholarIDs, authors):
         #comparing corresponding author and authorID lists, ideally I want to search with authorID because two different authors
@@ -159,7 +179,11 @@ class attributeHandler():
                 #finding the correct author with just their name, COME BACK TO LATER
                 #authorFound = False 
                 print("GOING TO TRY SEARCH ", a)
-                author_query = next(authorName_query) 
+                # authorFound = False
+                # while authorFound == False:
+                #     author_query = next(authorName_query) 
+                #     author = scholarly.fill(author_query, sections=['publication']) 
+
             else:
                 author_query = scholarly.search_author_id(correspondingID)
 
@@ -184,9 +208,9 @@ class attributeHandler():
 
 #used to return two items for the governmentAffiliation method of attributeHandler object
 class governmentAffiliationResponse():
-    def __init__(self, levelOfAffiliation, countryToFind, government_id=None):
+    def __init__(self, levelOfAffiliation, government, government_id=None):
         self.levelOfAffiliation = levelOfAffiliation 
-        self.countryToFind = countryToFind
+        self.government = government
         self.government_id = government_id 
         
             #SELECT government.id FROM Government WHERE correspondingDomain = domain
@@ -243,12 +267,15 @@ def journalExists(journal):
 
         
 class SearchResponse():
-    def __init__(self, title, abstract, levelOfAffiliation, searchDepth, journal, authors, countryToFind):
+    def __init__(self, title, abstract, pub_year, num_citations, publisher, gs_rank, levelOfAffiliation, searchDepth, journal, authors, government):
         self.title = title
         self.abstract = abstract
+        self.pub_year = pub_year
+        self.num_citations = num_citations
+        self.publisher = publisher
+        self.gs_rank = gs_rank
         self.levelOfAffiliation = levelOfAffiliation
         self.searchDepth = searchDepth
         self.journal = journal
         self.authors = authors
-        self.countryToFind = countryToFind
-
+        self.government = government

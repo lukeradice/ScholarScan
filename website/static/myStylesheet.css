@@ -1,5 +1,9 @@
-.form-border-enforcer{
-    max-width: auto;
+#form-border-enforcer{
+    max-width: 100% !important;
+}
+
+.form-group{
+    flex-shrink: 1 !important;
 }
 
 .rightSide{
@@ -8,4 +12,25 @@
 
 .scholarLogo{
     background-image:url("https://cdn5.vectorstock.com/i/1000x1000/86/59/magnifying-glass-with-graduation-cap-vector-7328659.jpg")
+}
+
+#image {
+    display: inline-block;;
+    }
+
+.line-row {
+    /* list-style: none;
+    font-size: 0; */
+    height: 22px;
+    margin-top: 2px;
+}
+
+.line-row li {
+    display: inline-block;
+    border-radius: 0%;
+    width: 35px;
+    height: 20px;
+    margin-top: 4px;
+    /* background: #737373; */
+    outline: 1px solid #000;
 }

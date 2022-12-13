@@ -4,8 +4,9 @@
 
 {% block content %}
 <h1 class="display-2"> ScholarScan </h1>
+<!-- <img src="https://static.vecteezy.com/system/resources/thumbnails/013/061/836/small_2x/graduate-hat-and-magnifying-glass-logo-design-student-finder-logo-template-free-vector.jpg"> -->
 <br />
-<form class="form-border-enforcer form-inline" method="POST">
+<form id="form-border-enforcer" class="form-inline" method="POST">
     <div class = "form-group">
         <input class="form-control-lg" name="searchQuery" id="searchQuery" placeholder="Search ScholarScan" maxlength="80">
         <button type="submit" class="btn btn-success ml-2 mb-4">GO</button>
@@ -24,15 +25,15 @@
           </div>
         <div class="form-group ml-2 mb-2">
             <input class="form-control" name="overNStudies" id="overNStudies" placeholder="Author has over n studies" maxlength="5">
-            <label class="form-check-label mb-4 small" for="overNStudies">
+            <!-- <label class="form-check-label mb-4 small" for="overNStudies">
               Minimum Author Study Count
-            </label>
+            </label> -->
         </div>
         <div class="form-group ml-2 mb-2">
           <input class="form-control" name="resultAmount" id="restultAmount" placeholder="No. of search results" maxlength="5">
-          <label class="form-check-label mb-4 small" for="resultAmount">
+          <!-- <label class="form-check-label mb-4 small" for="resultAmount">
             Max amount of results 
-          </label>
+          </label> -->
       </div>
     </div>
 </form>
@@ -40,18 +41,21 @@
 <br />
 <h1 align="center">Results</h1>
 <ul class="list-group list-group-flush", id="results">
-  <li class="list-group-item">
-    <p> they should appear under here</p>
-    {% for study in searchedStudies %}
-      <p>Title: {{ study.title }}</p>
-      <p>Abstract: {{ study.abstract }}</p>
-      <p>Authors: {{ study.authors }}</p>
-      <p>Journal: {{ study.journal }}</p>
-      <p>Country: {{ study.countryToFind }}</p>
-      <p>Gov: {{ study.levelOfAffiliation }}</p>
-      <p>SD: {{ study.searchDepth }}</p>
-    {% endfor %}
-  </li>
+  {% for study in searchedStudies %}
+    <li class="list-group-item line-row li">
+        <p>Title: {{ study.title }}</p>
+        <p>Abstract: {{ study.abstract }}</p>
+        <p>Publisher: {{ study.publisher }}</p>
+        <p>Publishing Year: {{ study.pub_year }}</p>
+        <p>GS rank: {{ study.gs_rank }}</p>
+        <p>Citations: {{ study.num_citations }}</p>
+        <p>Authors: {{ study.authors }}</p>
+        <p>Journal: {{ study.journal }}</p>
+        <p>Country: {{ study.government }}</p>
+        <p>Gov: {{ study.levelOfAffiliation }}</p>
+        <p>SD: {{ study.searchDepth }}</p>
+      </li>
+  {% endfor %}
 </ul>
 {% endblock %}
 
