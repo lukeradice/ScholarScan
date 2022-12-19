@@ -2,19 +2,19 @@ from scholarly import scholarly, ProxyGenerator
 from datetime import datetime
 
  
-pg = ProxyGenerator()
-success = pg.ScraperAPI('d07eb644f66c41a5ebf97168156dc1d5')
+# pg = ProxyGenerator()
+# success = pg.ScraperAPI('d07eb644f66c41a5ebf97168156dc1d5')
 # success = pg.FreeProxies()
-scholarly.use_proxy(pg)
-if success:
-    print("success")
+# scholarly.use_proxy(pg)
+# if success:
+#     print("success")
     #print(datetime.now())
     #authorName_query = scholarly.search_author('Z Meng')
-    searchQuery = scholarly.search_pubs("vegan diet")
-    # #author = next(authorName_query) 
-    study = next(searchQuery)
-    # #scholarly.pprint(scholarly.fill(author, sections=['publications']))
-    scholarly.pprint(scholarly.fill(study, sections='basics'))
+# searchQuery = scholarly.search_author("Daniel Kahneman")
+#     # #author = next(authorName_query) 
+# author = next(searchQuery)
+#     # #scholarly.pprint(scholarly.fill(author, sections=['publications']))
+# print(author)
 
     # search_query = scholarly.search_author('Steven A Cholewiak')
     # author = next(search_query)
@@ -23,3 +23,12 @@ if success:
     #     study = next(studies)
     #     print(study)
     #     print(datetime.now())
+
+pg = ProxyGenerator()
+success = pg.ScraperAPI('0a5c362e42b4b14c12595210593f9724')
+scholarly.use_proxy(pg)
+if success:
+    print("success")
+    search_query = scholarly.search_author('Steven A Cholewiak')
+    authorinfo = next(search_query)
+    print(scholarly.fill(authorinfo, sections=["publications"]))

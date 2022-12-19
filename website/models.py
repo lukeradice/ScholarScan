@@ -12,12 +12,13 @@ class Study(db.Model):
     publisher = db.Column(db.String(40))
     num_citations = db.Column(db.Integer)
     gs_rank = db.Column(db.Integer)
+    authorStrings = db.Column(db.String(50))
     government_id = db.Column(db.Integer, db.ForeignKey('government.id'))
     journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
     authors = db.relationship('AuthorStudyLink')
 
     def __repr__(self):
-        return f'<Study: {self.title, self.searchDepth, self.abstract, self.pub_year, self.publisher, self.num_citations, self.gs_rank, self.governmentAffiliation, self.government_id}>'
+        return f'<Study: {self.title}>'
 
 class Organisation(db.Model):
     id = db.Column(db.Integer, primary_key=True)

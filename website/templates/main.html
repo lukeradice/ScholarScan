@@ -40,7 +40,7 @@
 <br />
 <br />
 <h1 align="center">Results</h1>
-<ul class="list-group list-group-flush", id="results">
+<ul class="list-group-flush", id="results">
   {% for study in searchedStudies %}
     <li class="list-group-item line-row li">
         <p>Title: {{ study.title }}</p>
@@ -50,6 +50,7 @@
         <p>GS rank: {{ study.gs_rank }}</p>
         <p>Citations: {{ study.num_citations }}</p>
         <p>Authors: {{ study.authors }}</p>
+        <p> Author and organisation information: {{ study.authorOrgInfo }}</p>
         <p>Journal: {{ study.journal }}</p>
         <p>Country: {{ study.government }}</p>
         <p>Gov: {{ study.levelOfAffiliation }}</p>

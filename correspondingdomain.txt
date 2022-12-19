@@ -251,3 +251,5 @@
 .com,USA
 .net,USA
 .org,USA
+.gov,USA
+.eu,EU

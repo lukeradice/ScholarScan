@@ -18,10 +18,7 @@
     display: inline-block;;
     }
 
-.line-row {
-    /* list-style: none;
-    font-size: 0; */
-    height: 22px;
+/* .line-row {
     margin-top: 2px;
 }
 
@@ -30,7 +27,7 @@
     border-radius: 0%;
     width: 35px;
     height: 20px;
-    margin-top: 4px;
+    margin-top: 4px; */
     /* background: #737373; */
-    outline: 1px solid #000;
-}
+    /* outline: 1px solid #000;
+} */
