@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, request, flash
 #Blueprint allows us to define the URLs across multiple files
 #render template allows us to render externally written html templates
 #request allows access to incoming web request data
-from .search import search
-from .searchCheck import searchCheck
+from .search.search import search
+from .search.searchCheck import searchCheck
 
 views = Blueprint("views", __name__)
 
@@ -30,11 +30,11 @@ def scholarScan():
 
 
         #input validation
-        result = searchCheck(searchQuery, overNStudies, resultAmount)
-        if result.state:
+        validation = searchCheck(searchQuery, overNStudies, resultAmount)
+        if validation.state:
             #search is intiated
             flash("Search intiated", category="success")
-            searchedStudies = search(searchQuery, peerReviewed, governmentAffiliation, result.overNStudies, result.resultAmount) 
+            searchedStudies = search(searchQuery, peerReviewed, governmentAffiliation, validation.overNStudies, validation.resultAmount) 
             return render_template("main.html", searchedStudies=searchedStudies)
             #some sort of reset needed, as you want the ability to reinput need understanding of decorator, flashing of error will occur in searchCheck module
         

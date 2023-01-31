@@ -38,6 +38,10 @@
     </div>
 </form>
 <br />
+  <div id="load"></div>
+  <div id="contents">
+        jlkjjlkjlkjlkjlklk
+  </div>
 <br />
 <h1 align="center">Results</h1>
 <ul class="list-group-flush", id="results">
@@ -50,7 +54,10 @@
         <p>GS rank: {{ study.gs_rank }}</p>
         <p>Citations: {{ study.num_citations }}</p>
         <p>Authors: {{ study.authors }}</p>
-        <p> Author and organisation information: {{ study.authorOrgInfo }}</p>
+        <p> Author and organisation information:</p>
+        {% for dictRow in study.authorOrgInfo %} 
+          <p>{{ dictRow }}</p>
+        {% endfor %}
         <p>Journal: {{ study.journal }}</p>
         <p>Country: {{ study.government }}</p>
         <p>Gov: {{ study.levelOfAffiliation }}</p>
@@ -61,3 +68,11 @@
 {% endblock %}
 
 title, abstract, levelOfAffiliation, journal, searchIterations, authors, countryToFind
+
+
+JS
+
+
+}
+CSS
+

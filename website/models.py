@@ -24,7 +24,6 @@ class Organisation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     orgName = db.Column(db.String)
     #impactFactor = db.Column(db.Integer)
-    scholar_id = db.Column(db.String)
     authors = db.relationship('Author')
 
     def __repr__(self):
@@ -33,7 +32,7 @@ class Organisation(db.Model):
 
 class Journal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    journalName = db.Column(db.String)
+    journalName = db.Column(db.String(50))
     #peerReviewed = db.Column(db.Boolean)
     studies = db.relationship('Study')
 
@@ -50,12 +49,12 @@ class Author(db.Model):
     studies = db.relationship('AuthorStudyLink')
 
     def __repr__(self):
-        return f'<Author: {self.authorName, self.authorCitations, self.Organisation_id}>'
+        return f'<Author: {self.authorName, self.authorCitations, self.organisation_id}>'
 
 class AuthorStudyLink(db.Model):
     #link table for Study and Author entities as they have a many to many relationship
     #composite primary key of both the foreign keys and an id
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'), primary_key=True)
     study_id = db.Column(db.Integer, db.ForeignKey('study.id'), primary_key = True)
 
