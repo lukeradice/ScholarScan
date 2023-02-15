@@ -18,7 +18,7 @@ dummyAuthor2 = {'container_type': 'Author', 'filled': ['basics', 'indices', 'cou
 dummyStudies = [dummyStudy1, dummyStudy2]
 dummyAuthors = [dummyAuthor1, dummyAuthor2]
 
-def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNStudiesFilter, resultAmount):
+def search(searchQuery, resultAmount):
     # studyDB = Government.query.all()
     # print(studyDB)
     searchedStudies = []
@@ -84,7 +84,7 @@ def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNSt
 
                 #creating study entry in database
                 new_study = Study(searchDepth=searchIterations, governmentAffiliation=levelOfAffiliation, title=title, abstract=abstract, pub_year=pub_year, num_citations=num_citations, 
-                publisher=publisher, gs_rank=gs_rank, authorStrings=authors, government_id=government_id, journal_id=journal_id)
+                publisher=publisher, gsRank=gsRank, authorStrings=authors, government_id=government_id, journal_id=journal_id)
                 db.session.add(new_study)
                 db.session.commit()
 
@@ -105,8 +105,6 @@ def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNSt
                     except Exception:
                         pass
 
-
-                
             else:
                 print("ALREADY STORED IN DB, FETCHING INFO")
 
@@ -117,7 +115,7 @@ def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNSt
                 pub_year = fetchedStudy.pub_year
                 num_citations = fetchedStudy.num_citations
                 publisher = fetchedStudy.publisher
-                gs_rank = fetchedStudy.gs_rank
+                gsRank = fetchedStudy.gs_rank
                 levelOfAffiliation = fetchedStudy.governmentAffiliation
 
                 #update search depth info
@@ -160,7 +158,7 @@ def search(searchQuery, peerReviewedFilter, governmentAffiliationFilter, overNSt
             print("citations", num_citations)
             print("pub year", pub_year)
             print("publisher", publisher)
-            print("gs rank", gs_rank)
+            print("gs rank", gsRank)
             print('levelofaffiliation', levelOfAffiliation)
             print("search depth", searchIterations)
             print("journal", journal)
@@ -331,16 +329,16 @@ def journalExists(journal):
 
         
 class SearchResponse():
-    def __init__(self, title, abstract, pub_year, num_citations, publisher, gs_rank, levelOfAffiliation, searchDepth, journal, authors, authorOrgInfo, government):
+    def __init__(self, title, abstract, pub_year, num_citations, publisher, gsRank, levelOfAffiliation, searchDepth, journal, authors, authorOrgInfo, government):
         self.title = title
         self.abstract = abstract
         self.pub_year = pub_year
         self.num_citations = num_citations
         self.publisher = publisher
-        self.gs_rank = gs_rank
+        self.gsRank = gsRank
         self.levelOfAffiliation = levelOfAffiliation
         self.searchDepth = searchDepth
-        self.journal = journal
+        self.journalInfo = journal
         self.authors = authors
         self.authorOrgInfo = authorOrgInfo
         self.government = government

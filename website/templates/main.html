@@ -22,7 +22,31 @@
             <label class="form-check-label mb-4" for="governmentAffiliation">
                 Government Affiliation
             </label>
-          </div>
+        </div>
+        <div class="form-check ml-2 mb-2">
+            <input class="form-check-input" type="checkbox" value="conflictDisclosed" name="checkbox" id="conflictDisclosed">
+            <label class="form-check-label mb-4" for="conflictDisclosed">
+                Conflict of Interest Disclosed
+            </label>
+        </div>
+        <div class="form-check ml-2 mb-2">
+            <input class="form-check-input" type="checkbox" value="conflictInterest" name="checkbox" id="conflictInterest">
+            <label class="form-check-label mb-4" for="conflictInterest">
+                No Conflict of Interest
+            </label>
+        </div>
+        <div class="form-check ml-2 mb-2">
+            <input class="form-check-input" type="checkbox" value="fundingDisclosed" name="checkbox" id="fundingDisclosed">
+            <label class="form-check-label mb-4" for="fundingDisclosed">
+                External Funding Disclosed
+            </label>
+        </div>
+        <div class="form-check ml-2 mb-2">
+            <input class="form-check-input" type="checkbox" value="notExternallyFunded" name="checkbox" id="notExternallyFunded">
+            <label class="form-check-label mb-4" for="notExternallyFunded">
+                No External Funding
+            </label>
+        </div>
         <div class="form-group ml-2 mb-2">
             <input class="form-control" name="overNStudies" id="overNStudies" placeholder="Author has over n studies" maxlength="5">
             <!-- <label class="form-check-label mb-4 small" for="overNStudies">
@@ -31,10 +55,25 @@
         </div>
         <div class="form-group ml-2 mb-2">
           <input class="form-control" name="resultAmount" id="restultAmount" placeholder="No. of search results" maxlength="5">
-          <!-- <label class="form-check-label mb-4 small" for="resultAmount">
-            Max amount of results 
-          </label> -->
-      </div>
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="minCitations" id="minCitations" placeholder="Min. citations" maxlength="5">
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="maxGsRank" id="maxGsRank" placeholder="No. of studies to analyse" maxlength="5">
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="minVersions" id="minVersions" placeholder="Min. study versions" maxlength="5">
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="yearsSinceCite" id="yearsSinceCite" placeholder=" Max years since citation" maxlength="5">
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="minPubYear" id="minPubYear" placeholder="Oldest study (year)" maxlength="5">
+        </div>
+        <div class="form-group ml-2 mb-2">
+          <input class="form-control" name="minAuthCitations" id="minAuthCitations" placeholder="Min. author cites" maxlength="5">
+        </div>
     </div>
 </form>
 <br />
