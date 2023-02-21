@@ -53,6 +53,8 @@ def searchCheck(searchQuery, minCitations, maxGsRank, minVersions, yearsSinceCit
         if filter !="" and can_convert_to_int(filter) == False:
             flash("Please make sure filter values are numbers where they should be", category="error")
             return False
+        if filter =="":
+            return True
         filter = int(filter)
         if filter and filter <= 0:
             flash("Please make sure filter values are positive", category="error")

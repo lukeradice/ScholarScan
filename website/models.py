@@ -8,10 +8,10 @@ class Study(db.Model):
     governmentAffiliation = db.Column(db.Integer)
     title = db.Column(db.String(50))
     abstract = db.Column(db.String(2000))
-    pub_year = db.Column(db.Integer)
+    pubYear = db.Column(db.Integer)
     publisher = db.Column(db.String(40))
-    num_citations = db.Column(db.Integer)
-    gs_rank = db.Column(db.Integer)
+    numCitations = db.Column(db.Integer)
+    gsRank = db.Column(db.Integer)
     authorStrings = db.Column(db.String(50))
     government_id = db.Column(db.Integer, db.ForeignKey('government.id'))
     journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
@@ -20,31 +20,19 @@ class Study(db.Model):
     def __repr__(self):
         return f'<Study: {self.title}>'
 
-class Organisation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    orgName = db.Column(db.String)
-    #impactFactor = db.Column(db.Integer)
-    authors = db.relationship('Author')
-
-    def __repr__(self):
-        return f'<Organisation: {self.orgName}>'
-    
-
-class Journal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    journalName = db.Column(db.String(50))
-    #peerReviewed = db.Column(db.Boolean)
-    studies = db.relationship('Study')
-
-    def __repr__(self):
-        return f'<Journal: {self.journalName}>'
-    
 class Author(db.Model):
     #the same author will have multiple studies so a separate table must be made for them, also a useful place to store other 
     #information about them to determine their reputation
     id = db.Column(db.Integer, primary_key=True)
     authorName = db.Column(db.String(50))
     authorCitations = db.Column(db.Integer)
+    authorCitations5y = db.Column(db.Integer)
+    hIndex = db.Column(db.Integer)
+    hIndex5y = db.Column(db.Integer)
+    i10index = db.Column(db.Integer)
+    i10index5y = db.Column(db.Integer)
+    yearsSinceCite = db.Column(db.Integer)
+    careerLength = db.Column(db.Integer)
     organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
 
@@ -61,7 +49,24 @@ class AuthorStudyLink(db.Model):
     def __repr__(self):
         return f'<AuthorStudyLink: {self.author_id, self.study_id}>'
 
+class Organisation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    orgName = db.Column(db.String)
+    #impactFactor = db.Column(db.Integer)
+    authors = db.relationship('Author')
 
+    def __repr__(self):
+        return f'<Organisation: {self.orgName}>'
+    
+class Journal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    journalName = db.Column(db.String(50))
+    #peerReviewed = db.Column(db.Boolean)
+    studies = db.relationship('Study')
+
+    def __repr__(self):
+        return f'<Journal: {self.journalName}>'
+    
 class Government(db.Model):
     #the same goverment will have multiple studies so a separate table must be made for them, also a useful place to store other 
     #information about them to determine their reputation
@@ -74,7 +79,4 @@ class Government(db.Model):
         return f'<Government: {self.government, self.correspondingDomain}>'
     
 
-
-#&"C:\Users\luker\OneDrive\Documents\Software Tools\Sqllite\sqlite-tools-win32-x86-3390400\sqlite3.exe"
-#database tool
 

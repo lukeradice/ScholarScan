@@ -253,3 +253,4 @@
 .org,USA
 .gov,USA
 .eu,EU
+.edu,USA

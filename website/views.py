@@ -62,7 +62,7 @@ def scholarScan():
         validation = searchCheck(searchQuery, filters.get('minCitations'), filters.get('maxGsRank'), 
             filters.get('minVersions'), filters.get('yearsSinceCite'), filters.get('minPubYear'), 
             filters.get('minAuthCitations'), filters.get('resultAmount'), filters.get('overNStudies'))
-        if validation.state:
+        if validation:
             #search is intiated
             flash("Search intiated", category="success")
             #changes to search function arguments

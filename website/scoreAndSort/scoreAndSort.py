@@ -1,19 +1,19 @@
 import datetime
 
 #function which applies filter deductions
-def filterCheck(study, filters, score, filter, condition, concernedVariable, limiter=None):
+def filterCheck(study, filters, score, filter, condition, concernedVariable, limiter=None, n):
 	if condition == 'False': 
 			if filters.get(filter) and getattr(study, concernedVariable) == False:
-				score = score - 5	
+				score = score - n	
 	elif condition == '>':
 			if filters.contains(filter) and filters.get(filter) > getattr(study, concernedVariable):
 				if limiter:
 					score = score - 5*(1/limiter)
 				else:
-					score = score - 5	
+					score = score - n	
 	elif condition == '<':
 			if filters.contains(filter) and filters.get(filter) < getattr(study, concernedVariable):
-				score = score - 5
+				score = score - n
 				
 	return score
 
@@ -39,15 +39,15 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		studyAge = currentYear - study.pubYear
 
 		#if statements that take away score for not meeting filters
-		score = filterCheck(study, filters, score, 'peerReviewed', 'False', 'peerReviewed')
-		score = filterCheck(study, filters, score, 'minCitations', '>', 'numCitations')
-		score = filterCheck(study, filters, score, 'noConflictInterest', 'False', 'noConflictInterest')
-		score = filterCheck(study, filters, score, 'notExternallyFunded', 'False', 'notExternallyFunded')				
-		score = filterCheck(study, filters, score, 'conflictDisclosed', 'False', 'conflictDisclosed')
-		score = filterCheck(study, filters, score, 'fundingDisclosed', 'False', 'fundingDisclosed') 
-		score = filterCheck(study, filters, score, 'governmentAffiliation', 'False', 'governmentAffiliation')		
-		score = filterCheck(study, filters, score, 'minPubYear', '>', 'pubYear')
-		score = filterCheck(study, filters, score, 'maxYearsSinceCite', '<', 'yearsSinceCite')
+		score = filterCheck(study, filters, score, 'peerReviewed', 'False', 'peerReviewed', 5)
+		score = filterCheck(study, filters, score, 'minCitations', '>', 'numCitations', 5)
+		score = filterCheck(study, filters, score, 'noConflictInterest', 'False', 'noConflictInterest', 5)
+		score = filterCheck(study, filters, score, 'notExternallyFunded', 'False', 'notExternallyFunded', 5)				
+		score = filterCheck(study, filters, score, 'conflictDisclosed', 'False', 'conflictDisclosed', 5)
+		score = filterCheck(study, filters, score, 'fundingDisclosed', 'False', 'fundingDisclosed', 5) 
+		score = filterCheck(study, filters, score, 'governmentAffiliation', 'False', 'governmentAffiliation', 5)		
+		score = filterCheck(study, filters, score, 'minPubYear', '>', 'pubYear', 5)
+		score = filterCheck(study, filters, score, 'maxYearsSinceCite', '<', 'yearsSinceCite', 5)
 	
 		#considering press freedom of the corresponding country
 		# if study.government.pressFreedom >= 85:
@@ -65,14 +65,15 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		score = score + 0.02*(study.numCitations or 0)
 		score = score + 0.08*(study.citationsOfTopCiters or 0)
 		score = score + 0.01*(study.reviewRefCount or 0)
-		score = score + 0.01*(study.numVersions or 0)
 		score = score + 0.00001*(study.viewCount or 0)
+		#can't find out number of versions, wasn't very meaningful anyway
+
 		
 		#adding scoring due to the author, limiter means that roughly the same possible score is possible
 		#for every study so having a proportion of good authors is more important 
 		limiter = len(study.authorOrgInfo)
 		for author in study.authorOrgInfo:
-			score = filterCheck(author, filters, score, 'authMinCitations', '>', 'authCitations', limiter)
+			score = filterCheck(author, filters, score, 'authMinCitations', '>', 'authCitations', limiter, 1)
 			score = score + 0.125*(author.hIndex or 0)*(1/limiter)
 			score = score + 0.4*(author.i10Index or 0)*(1/limiter)
 			score = score + 0.1*(author.hIndex5y or 0)*(1/limiter)
