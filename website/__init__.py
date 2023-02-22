@@ -22,7 +22,10 @@ def create_app():
     db.init_app(app)
     pg = ProxyGenerator() 
     scholarly.use_proxy(pg)
-    success = pg.ScraperAPI('d07eb644f66c41a5ebf97168156dc1d5')
+    success = pg.ScraperAPI('d1318296d4d6fc658b1e373287da15fe')
+    #success = pg.ScraperAPI('ffe4db9384d81641640ddb6976087dae')
+    #success = pg.ScraperAPI('57465d56ed88087e0fd9239e56ace84b')
+    #success = pg.ScraperAPI('d07eb644f66c41a5ebf97168156dc1d5')
     #success = pg.ScraperAPI('f171d0c5dd2ec4eb81c87ab25875fdd9')
     if success:
         print("successful proxy connection")

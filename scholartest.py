@@ -1,4 +1,5 @@
 from scholarly import scholarly, ProxyGenerator
+from scholarly.publication_parser import PublicationParser
 from datetime import datetime
 
  
@@ -29,6 +30,13 @@ success = pg.ScraperAPI('0a5c362e42b4b14c12595210593f9724')
 scholarly.use_proxy(pg)
 if success:
     print("success")
-    search_query = scholarly.search_pubs('r31adsgtdafsghagjhkajhg')
+    search_query = scholarly.search_pubs('vegan diet')
     studyinfo = next(search_query)
-    print(scholarly.fill(studyinfo))
+    pub = scholarly.fill(studyinfo)
+    parser = PublicationParser(pub)
+    print(pub)
+    # citationList = studyinfo.citedby()
+    x = parser.citedby(pub)
+    print(next(x))
+    # print(citationList)
+    # print(next(citationList))

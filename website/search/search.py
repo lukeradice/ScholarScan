@@ -1,9 +1,11 @@
 from website import db
-from website.models import Study, Author, AuthorStudyLink, Government, __repr__, Organisation, Journal
+from website.models import Study, Author, AuthorStudyLink, Government, Organisation, Journal
 import tldextract
 import sqlite3
 from scholarly import scholarly
-import datetime
+from datetime import datetime, date
+from bs4 import BeautifulSoup
+import requests
 
 # dummyStudy1 = {'container_type': 'Publication', 'source': "<PublicationSource.PUBLICATION_SEARCH_SNIPPET: 'PUBLICATION_SEARCH_SNIPPET'>", 'bib': {'title': 'Nose picking and nasal carriage of Staphylococcus aureus', 'author': 'Wertheim, Heiman FL and Van Kleef, Menno and Vos, Margreet C and Ott, Alewijn and Verbrugh, Henri A and Fokkens, Wytske', 'pub_year': '2006', 'venue': 'Infection Control & …', 'abstract': 'part of the nose, we considered the habit of nose picking as a  a positive correlation between  nose picking and S. aureus  in a larger cohort with predefined criteria for nose picking.', 
 # 'publisher': 'Cambridge University Press', 'pages': '863--867', 'number': '8', 'volume': '27', 'journal': 'Infection Control \\& Hospital Epidemiology', 'pub_type': 'article', 'bib_id': 'wertheim2006nose'}, 'filled': True, 'gsrank': 1, 'pub_url': 'https://www.cambridge.org/core/journals/infection-control-and-hospital-epidemiology/article/nose-picking-and-nasal-carriage-of-staphylococcus-aureus/DC21FFA771693C772308530D2B1A1452', 'author_id': ['JVFGW64AAAAJ', '', 'RAV-bbIAAAAJ', ''], 'url_scholarbib': '/scholar?hl=en&q=info:KyKH-9mNPpcJ:scholar.google.com/&output=cite&scirp=0&hl=en', 'url_add_sclib': '/citations?hl=en&xsrf=&continue=/scholar%3Fq%3Dnose%2Bpicking%26hl%3Den%26as_sdt%3D0,33&citilm=1&update_op=library_add&info=KyKH-9mNPpcJ&ei=gQ2zY6CMLc6TywSl1LXoCA&json=', 'num_citations': 90, 'citedby_url': '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en', 'url_related_articles': '/scholar?q=related:KyKH-9mNPpcJ:scholar.google.com/&scioq=nose+picking&hl=en&as_sdt=0,33', 'eprint_url': 'https://www.academia.edu/download/46395935/Nose_picking_and_nasal_carriage_of_Staph20160611-15499-1ngo5wz.pdf'}
@@ -20,8 +22,7 @@ import datetime
 
 def search(searchQuery, studiesAnalysed):
     print(Study.query.all())
-    # studyDB = Government.query.all()
-    # print(studyDB)
+    currentDate = date.today()
     searchedStudies = []
     searchIterations = 2
     if studiesAnalysed:
@@ -34,7 +35,6 @@ def search(searchQuery, studiesAnalysed):
     studies = scholarly.search_pubs(str(searchQuery))
     for i in range (0, searchIterations):
         print("iteration", i)
-        #this won't run if my api credits have been used up
         try:
             studyUnfull = next(studies)
         except StopIteration:
@@ -47,11 +47,27 @@ def search(searchQuery, studiesAnalysed):
             #adding information for study entity
             #first checks if it already exists within the database
             title = study.get('bib').get('title')
-            if not checkExists(title, Study, "title"): 
-            # if not studyExists(title): 
+            #getting results as a list to avoid doing a try except statement here
+            fetchedStudies = db.session.query(Study).filter_by(title=title).all()
+            #alternative to StudyExists, takes into account when the dynamic information that is being
+            #added to my databases has been there a year
+            if len(fetchedStudies) > 0:
+                fetchedStudy = fetchedStudies[0]
+                print("fetchedStudy", fetchedStudy)
+                dateAdded = fetchedStudy.dateOfAddition
+                print("dateAdded", dateAdded)
+                dateDifference = currentDate - dateAdded
+                print("dateDifference", dateDifference)
+                if dateDifference.days > 365:
+                    db.session.delete(fetchedStudy)
+                    db.session.commit()
+                    fetchedStudy = None
+            else:
+                fetchedStudy = None
+            if not fetchedStudy: 
                 print("DIDNT EXIST")
                 abstract = study.get('bib').get('abstract')
-                pubYear = study.get('bib').get('pub_year')
+                pubYear = int(study.get('bib').get('pub_year'))
                 numCitations = study.get('num_citations')
                 publisher = study.get('bib').get('publisher')
                 gsRank = study.get('gsrank')
@@ -61,9 +77,9 @@ def search(searchQuery, studiesAnalysed):
                 governmentAffiliation = governmentFind.governmentAffiliator(study.get('pub_url'))
                 levelOfAffiliation = governmentAffiliation.levelOfAffiliation
                 government = governmentAffiliation.government
-                govenrmentAffiliation = governmentAffiliation.governmentAffiliation
                 affiliationNature = governmentAffiliation.affiliationNature
                 government_id = governmentAffiliation.government_id
+                governmentAffiliation = governmentAffiliation.governmentAffiliation
 
                 #adding the details of the journal and checking to see if info on it is already stored in the database
                 journal = study.get('bib').get('venue')
@@ -90,9 +106,58 @@ def search(searchQuery, studiesAnalysed):
                 authorOrgInfo = authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authorList)
                 #authorOrgInfo = authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authorList, i)
 
+                citationUrl = 'https://scholar.google.com/' + citedByUrl
+                html = requests.get(citationUrl)
+                citationPage = BeautifulSoup(html.content, 'html.parser')
+
+                #implementation to calculate the value for the citationsOfTopCiters attribute
+                results = citationPage.find(id="gs_res_ccl_mid")
+                if results:
+                    citationNumbers = results.find_all('a')
+                    mostRecentCiters = []
+                    for num in citationNumbers:
+                        aText = num.text
+                        if aText.startswith('Cited by') and len(mostRecentCiters) <= 3:
+                            citations = int(aText[8:len(aText)])
+                            mostRecentCiters.append(citations)
+                    citationsOfTopCiters = 0
+                    for num in mostRecentCiters:
+                        num = int(num)
+                        citationsOfTopCiters = citationsOfTopCiters + num
+                else:
+                    print("MY SCRAPING GOT BLOCKED")
+                    citationsOfTopCiters = 0
+
+
+                #need to make sure list index doesn't go out of range, could be few citations that have no number
+
+                #WORKING IMPLEMENTATION TO GET daysSinceCite, need a new URL to sort citations by date
+                citedCode = citedByUrl[15:35]
+                citesByDate_url = 'https://scholar.google.com/scholar?hl=en&as_sdt=5,33&sciodt=0,33&cites=' + citedCode + '&scipsc=&q=&scisbd=1'
+                print(citesByDate_url)
+                html = requests.get(citesByDate_url)
+                citedByDatePage = BeautifulSoup(html.content, 'html.parser')
+                results = citedByDatePage.find(id="gs_res_ccl_mid") 
+                if results:
+                    ageInfo = results.find_next('span', class_= 'gs_age')
+                    #daysSinceCite applied value, if none in last 365 arbitrarily set to 1000
+                    if ageInfo:
+                        text = ageInfo.text
+                        print("AGEINFO", text)
+                        #turns 'x days ago' statement into int(x)
+                        daysSinceCite = int(text[0:text.find(" ")])
+                    else:
+                        daysSinceCite = 1000
+                else:
+                    print("MY SCRAPING GOT BLOCKED")
+                    daysSinceCite = 365
+
                 #creating study entry in database
-                new_study = Study(searchDepth=searchIterations, governmentAffiliation=levelOfAffiliation, title=title, abstract=abstract, pubYear=pubYear, numCitations=numCitations, 
-                publisher=publisher, gsRank=gsRank, authorStrings=authors, government_id=government_id, journal_id=journal_id)
+                new_study = Study(levelOfAffiliation=levelOfAffiliation, title=title, abstract=abstract, pubYear=pubYear, numCitations=numCitations, 
+                                  publisher=publisher, gsRank=gsRank, authorStrings=authors, government_id=government_id, governmentAffiliation=governmentAffiliation, 
+                                  affiliationNature=affiliationNature, journal_id=journal_id, peerReviewed=True, noConflictInterest=True, conflictDisclosed=True, 
+                                  notExternallyFunded=True, conflictEvidence="None", publisherRating=0, daysSinceCite=daysSinceCite, citationsOfTopCiters=citationsOfTopCiters, 
+                                  dateOfAddition=currentDate)
                 db.session.add(new_study)
                 db.session.commit()
 
@@ -116,7 +181,7 @@ def search(searchQuery, studiesAnalysed):
                 print("ALREADY STORED IN DB, FETCHING INFO")
 
                 #getting information about study from the database to input into the searchedStudies list
-                fetchedStudy = db.session.query(Study).filter_by(title=title).first()
+                
                 title = fetchedStudy.title
                 abstract = fetchedStudy.abstract
                 pubYear = fetchedStudy.pubYear
@@ -124,9 +189,16 @@ def search(searchQuery, studiesAnalysed):
                 publisher = fetchedStudy.publisher
                 gsRank = fetchedStudy.gsRank
                 levelOfAffiliation = fetchedStudy.governmentAffiliation
+                daysSinceCite = fetchedStudy.daysSinceCite
+                citationsOfTopCiters = fetchedStudy.citationsOfTopCiters
+                #citedByUrl = fetchedStudy.citedByUrl
 
-                #update search depth info
-                fetchedStudy.searchDepth = searchIterations
+                government = fetchedStudy.government
+                governmentAffiliation = fetchedStudy.governmentAffiliation
+                affiliationNature = fetchedStudy.affiliationNature
+                government_id = fetchedStudy.government_id
+                authors = fetchedStudy.authors
+
                 db.session.commit()
 
                 #getting info about the journal by using the foreign key relationship between journal and study
@@ -137,6 +209,7 @@ def search(searchQuery, studiesAnalysed):
                 #getting info about the authors using the author link table
                 study_id = fetchedStudy.id
                 associatedLinkedAuthors = db.session.query(AuthorStudyLink).filter_by(study_id=study_id).all()
+                authorOrgInfo = []
                 for author in associatedLinkedAuthors:
                     associatedAuthorID = author.author_id                    
                     print("associated author", associatedAuthorID)
@@ -154,26 +227,9 @@ def search(searchQuery, studiesAnalysed):
                     associatedOrg = db.session.query(Organisation).filter_by(id=associatedOrgID).first()
                     print("associated org", associatedOrg)
                     orgName = associatedOrg.orgName
-                    authorOrgInfo = AuthorOrgInfo(authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
+                    newAuthorOrg = AuthorOrgInfo(authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
                                                   i10index5y, citesPerYear, orgName)
-                # authorOrgInfo = []
-                # for author in associatedLinkedAuthors:
-                #     associatedAuthorID = author.author_id                    
-                #     print("associated author", associatedAuthorID)
-                #     associatedAuthor = db.session.query(Author).filter_by(id=associatedAuthorID).first()
-                #     print("associated author", associatedAuthor)
-                #     authorName = associatedAuthor.authorName
-                #     authorCitations = associatedAuthor.authorCitations
-                #     associatedOrgID = associatedAuthor.organisation_id
-                #     associatedOrg = db.session.query(Organisation).filter_by(id=associatedOrgID).first()
-                #     print("associated org", associatedOrg)
-                #     orgName = associatedOrg.orgName
-                #     authorInfo = {
-                #          'authorName': authorName,
-                #          'authorCitations': authorCitations,
-                #          'orgName': orgName
-                #     }
-                #     authorOrgInfo.append(authorInfo)
+                    authorOrgInfo.append(newAuthorOrg)
 
                 government_id = fetchedStudy.government_id
                 associatedGovernment = db.session.query(Government).filter_by(id=government_id).first()
@@ -186,15 +242,16 @@ def search(searchQuery, studiesAnalysed):
             print("publisher", publisher)
             print("gs rank", gsRank)
             print('levelofaffiliation', levelOfAffiliation)
-            print("search depth", searchIterations)
             print("journal", journal)
             print("authors", authors)
             print("authorOrgInfo", authorOrgInfo)
             print("government", government)
+            print("daysSinceCite", daysSinceCite)
+            print("citationsOfTopCiters", citationsOfTopCiters)
             #adding information about the study to searchedStudies list after it has been gathered via scraping or database
-            newStudy = SearchResponse(title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, 
-                                      searchIterations, journal, authors, authorOrgInfo, government, peerReviewed=True, 
-                                      noConflictInterest=True, conflictDisclosed=True, conflictEvidence="", publisherRating=0)
+            newStudy = SearchResponse(title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journal, authors, authorOrgInfo, government, 
+                                      governmentAffiliation, affiliationNature, daysSinceCite, citationsOfTopCiters, peerReviewed=True, noConflictInterest=True, conflictDisclosed=True, 
+                                      notExternallyFunded=True, conflictEvidence="", publisherRating=0)
             searchedStudies.append(newStudy)
             
             ##
@@ -222,16 +279,16 @@ class AttributeHandler():
         if 'edu' in suffix or 'ac' in suffix:
             return GovernmentAffiliationResponse(50, government, False, "Educational institute", countryToFind.id)
         elif '.gov' in suffix:
-            return GovernmentAffiliationResponse(100, government, True, "Government sponsored" countryToFind.id)
+            return GovernmentAffiliationResponse(100, government, True, "Government sponsored", countryToFind.id)
         else:
             return GovernmentAffiliationResponse(0, government, False, "Private company", countryToFind.id)
 
-    def citationAttributes(citesPerYear, attributeToCalculate):
-        if attributeToCalculate == "yearsSinceCite":
+    def citationAttributes(self, citesPerYear, attributeToCalculate):
+        if attributeToCalculate == "authorYearsSinceCite":
             currentYear = getCurrentYear()
-            lastYearCited = citesPerYear.keys()[-1]
-            yearsSinceCite = currentYear - lastYearCited
-            return yearsSinceCite
+            lastYearCited = list(citesPerYear)[-1]
+            daysSinceCite = currentYear - lastYearCited
+            return daysSinceCite
         elif attributeToCalculate == "careerLength":
             careerLength = len(citesPerYear)
             return careerLength
@@ -240,6 +297,8 @@ class AttributeHandler():
         #comparing corresponding author and authorID lists, can only search with authors with AuthorID, think  I'll 
         #implement negative reward for no author id in scoring
         authorOrgInfo = []
+        print("ID LIST")
+        print(authorScholarIDs)
         for correspondingID in authorScholarIDs:
             print(correspondingID)
             #if the author has a scholar id, then the scraping of author/org information can commence
@@ -260,7 +319,7 @@ class AttributeHandler():
                     i10index5y = author.get('i10index5y')
                     citesPerYear = author.get('cites_per_year')
                     #inside AttributeHandler so functions can be referred to as self.
-                    yearsSinceCite = self.citationAttributes(citesPerYear, "yearsSinceCite")
+                    daysSinceCite = self.citationAttributes(citesPerYear, "authorYearsSinceCite")
                     careerLength = self.citationAttributes(citesPerYear, "careerLength")
 
                     #adding information about each author's main organisation to the organisation entity, this effects an author's scoring
@@ -271,11 +330,11 @@ class AttributeHandler():
                         new_org = Organisation(orgName=orgName)
                         db.session.add(new_org)
                         db.session.commit()
-                    organisation_id = db.session.query(Organisation.id).filter_by(orgName=orgName).first()
+                    organisation_id = db.session.query(Organisation.id).filter_by(orgName=orgName).first()[0]
                     print("organisation id", organisation_id)
                     #new author entity record
                     new_author = Author(authorName=authorName, authorCitations=authorCitations, authorCitations5y=authorCitations5y, hIndex=hIndex,
-                                        hIndex5y=hIndex5y, i10index=i10index, i10index5y=i10index5y, yearsSinceCite=yearsSinceCite, 
+                                        hIndex5y=hIndex5y, i10index=i10index, i10index5y=i10index5y, daysSinceCite=daysSinceCite, 
                                         careerLength=careerLength, organisation_id=organisation_id)
                     db.session.add(new_author)
                     db.session.commit()
@@ -303,62 +362,58 @@ class GovernmentAffiliationResponse():
         self.government_id = government_id 
 
 def studyExists(title):
-    #need the try except statement for when the database doesn't exist yet so it can't check for it
-    try:
-        exists = Study.query.filter_by(title=title).first()
-        return exists
-    except sqlite3.OperationalError:
-        return False
+    return checkExists(title, Study, "title") 
+
 def authorExists(name):
-    try:
-        exists = Author.query.filter_by(authorName=name).first()
-        return exists
-    except sqlite3.OperationalError:
-        return False
+    return checkExists(name, Author, "authorName")
+
 def organisationExists(orgName):
-    try:
-        exists = Organisation.query.filter_by(orgName=orgName).first()
-        return exists
-    except sqlite3.OperationalError:
-        return False
+    return checkExists(orgName, Organisation, "orgName")
+
 def journalExists(journal):
-    try:
-        exists = Journal.query.filter_by(journalName=journal).first()
-        return exists
-    except sqlite3.OperationalError:
-        return False
+    return checkExists(journal, Journal, "journalName")
+
+#check exists is the implementation for checking if an element is stored in the database,
+# the reason the functions above  
 def checkExists(checkingVariable, relevantEntity, entityColumn):
+        #need the try except statement for if nothing is returned
         try:
-            # exists = db.session.query(relevantEntity).filter_by(**{entityColumn:checkingVariable}).first()
             exists = relevantEntity.query.filter_by(**{entityColumn:checkingVariable}).first()
             return exists
         except sqlite3.OperationalError:
             return False
 
+#class which defines all the data to go with a publication, be presented with it on the website and used to calculate its position
 class SearchResponse():
-    def __init__(self, title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, searchDepth, journal, authors, authorOrgInfo, government,
-                 peerReviewed, noConflictInterest, conflictDisclosed, conflictEvidence, publisherRating):
+    def __init__(self, title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journal, authors, authorOrgInfo, government,
+                 governmentAffiliation, affiliationNature, daysSinceCite, citationsOfTopCiters, peerReviewed, noConflictInterest, conflictDisclosed, 
+                 notExternallyFunded, conflictEvidence, publisherRating):
         self.title = title
         self.abstract = abstract
         self.pubYear = pubYear
         self.numCitations = numCitations
         self.publisher = publisher
-        self.publisherRating = publisherRating
+        #self.publisherRating = publisherRating
         self.gsRank = gsRank
         self.levelOfAffiliation = levelOfAffiliation
-        self.searchDepth = searchDepth
         self.journalInfo = journal
         self.authors = authors
         self.authorOrgInfo = authorOrgInfo
         self.government = government
+        self.governmentAffiliation = governmentAffiliation
+        self.affiliationNature = affiliationNature
+        self.daysSinceCite=daysSinceCite
+        self.citationsOfTopCiters=citationsOfTopCiters
         self.peerReviewed = peerReviewed
         self.noConflictInterest = noConflictInterest
         self.conflictDisclosed = conflictDisclosed
+        self.notExternallyFunded = notExternallyFunded
         self.conflictEvidence = conflictEvidence
-
+        
+#author object containing all the information that can be presented to the website and have an effect on scoring
 class AuthorOrgInfo():
     def __init__(self, authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
-                 i10index5y, yearsSinceCite, careerLength, orgName):
+                 i10index5y, daysSinceCite, careerLength, orgName):
         self.authorName = authorName
         self.authorCitations = authorCitations
         self.authorCitations5y = authorCitations5y
@@ -366,10 +421,11 @@ class AuthorOrgInfo():
         self.hIndex5y = hIndex5y
         self.i10index = i10index
         self.i10index5y = i10index5y
-        self.yearsSinceCite = yearsSinceCite
+        self.daysSinceCite = daysSinceCite
         self.careerLength = careerLength
         self.orgName = orgName
 
 def getCurrentYear():
-    currentYear = datetime.date.today().strftime("%Y")
+    currentYear = date.today().strftime("%Y")
+    currentYear = int(currentYear)
     return int(currentYear)

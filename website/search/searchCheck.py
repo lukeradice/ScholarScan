@@ -35,11 +35,11 @@ class validationResponse():
         self.overNStudies = overNStudies
         self.resultAmount = resultAmount
 
-def searchCheck(searchQuery, minCitations, maxGsRank, minVersions, yearsSinceCite, minPubYear, 
+def searchCheck(searchQuery, minCitations, maxGsRank, minVersions, daysSinceCite, minPubYear, 
                 minAuthCitations, resultAmount, overNStudies):
     #for the two categories of checks aside from the one on the search query, I’ve put them in 
     # lists to loop through the validation conditions
-    zeroNegativeNumberChecks = [minCitations, maxGsRank, minVersions, yearsSinceCite, minPubYear, 
+    zeroNegativeNumberChecks = [minCitations, maxGsRank, minVersions, daysSinceCite, minPubYear, 
                                 minAuthCitations, resultAmount, overNStudies]
     decimalChecks = [minCitations, maxGsRank, minVersions, minPubYear, minAuthCitations, 
                      resultAmount, overNStudies]

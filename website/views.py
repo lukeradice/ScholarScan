@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, flash
 #request allows access to incoming web request data
 from .search.search import search
 from .search.searchCheck import searchCheck
+from .scoreAndSort.scoreAndSort import scoreAndSort
 
 views = Blueprint("views", __name__)
 
@@ -18,7 +19,7 @@ def scholarScan():
         # minCitations = request.form.get('minCitations')
         # maxGsRank = request.form.get('maxGsRank')
         # minVersions = request.form.get('minVersions')
-        # yearsSinceCite = request.form.get('yearsSinceCite')
+        # daysSinceCite = request.form.get('daysSinceCite')
         # minPubYear = request.form.get('minPubYear')
         # minAuthCitations = request.form.get('minAuthCitations')
 
@@ -45,10 +46,15 @@ def scholarScan():
             'resultAmount': request.form.get('resultAmount'),
             'minCitations': request.form.get('minCitations'),
             'maxGsRank': request.form.get('maxGsRank'),
-            'minVersions': request.form.get('minVersions'),
-            'yearsSinceCite': request.form.get('yearsSinceCite'),
+            'daysSinceCite': request.form.get('daysSinceCite'),
             'minPubYear': request.form.get('minPubYear'),
             'minAuthCitations': request.form.get('minAuthCitations'),
+            'peerReviewed': None,
+            'governmentAffiliation': None, 
+            'conflictDisclosed': None,
+            'conflictInterest': None,
+            'fundingDisclosed': None,
+            'notExternallyFunded': None
         }
         booleanFilters = ["peerReviewed", "governmentAffiliation", "conflictDisclosed", 
                           "conflictInterest", "fundingDisclosed", "notExternallyFunded"]
@@ -60,17 +66,18 @@ def scholarScan():
 
         #input validation
         validation = searchCheck(searchQuery, filters.get('minCitations'), filters.get('maxGsRank'), 
-            filters.get('minVersions'), filters.get('yearsSinceCite'), filters.get('minPubYear'), 
+            filters.get('minVersions'), filters.get('daysSinceCite'), filters.get('minPubYear'), 
             filters.get('minAuthCitations'), filters.get('resultAmount'), filters.get('overNStudies'))
         if validation:
             #search is intiated
-            flash("Search intiated", category="success")
+            flash("Search completed", category="success")
             #changes to search function arguments
             searchedStudies = search(searchQuery, filters.get('maxGsRank')) 
-            return render_template("main.html", searchedStudies=searchedStudies)
+            searchedAndSortedStudies = scoreAndSort(searchedStudies, filters, filters.get('resultAmount'))
+            return render_template("main.html", searchedAndSortedStudies=searchedAndSortedStudies)
             #some sort of reset needed, as you want the ability to reinput need understanding of decorator, flashing of error will occur in searchCheck module
         
-    return render_template("main.html", searchedStudies=[])
+    return render_template("main.html", searchedandSortedStudies=[])
 
 @views.route("/about", methods=["POST", "GET"])
 def about():

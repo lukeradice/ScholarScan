@@ -60,7 +60,7 @@
           <input class="form-control" name="maxGsRank" id="maxGsRank" placeholder="No. of studies to analyse" maxlength="5">
         </div>
         <div class="form-group ml-2 mb-2">
-          <input class="form-control" name="yearsSinceCite" id="yearsSinceCite" placeholder=" Max years since citation" maxlength="5">
+          <input class="form-control" name="daysSinceCite" id="daysSinceCite" placeholder=" Max days since citation" maxlength="5">
         </div>
         <div class="form-group ml-2 mb-2">
           <input class="form-control" name="minPubYear" id="minPubYear" placeholder="Oldest study (year)" maxlength="5">
@@ -76,15 +76,16 @@
   <div id="contents">
     <h1 align="center">Results</h1>
     <ul class="list-group-flush", id="results">
-      {% for study in searchedStudies %}
+      {% for study in searchedAndSortedStudies %}
         <li class="list-group-item line-row li">
             <p>Title: {{ study.title }}</p>
-            <p>Abstract: {{ study.abstract }}</p>
+            <p>Truncated Abstract: {{ study.abstract }}</p>
             <p>Publishing Year: {{ study.pubYear }}</p>
             <p>Publisher: {{ study.publisher }}</p>
-            <p>Publishing Year: {{ study.pubYear }}</p>
             <p>GS rank: {{ study.gsRank }}</p>
             <p>Citations: {{ study.numCitations }}</p>
+            <p>GovLev: {{ study.daysSinceCite }}</p>
+            <p>GovLev: {{ study.citationsOfTopCiters }}</p>
             <p>Authors: {{ study.authors }}</p>
             <p> Author and organisation information:</p>
             <!-- {% for dictRow in study.authorOrgInfo %} 
@@ -94,10 +95,13 @@
             <p>Journal: {{ study.journalInfo }}</p>
             <p>Country: {{ study.government }}</p>
             <p>GovLev: {{ study.levelOfAffiliation }}</p>
+            <p>Gov: {{ study.governmentAffiliation }}</p>
+            <p>GovLev: {{ study.affiliationNature }}</p>
             <p>Peer-Review: {{ study.peerReviewed }}</p>
-            <p>Conflict Interest: {{ study.peerReviewed }}</p>
-            <p>Conflict disclosed: {{ study.peerReviewed }}</p>
-            <p>Conflict Interest Evidence: {{ study.peerReviewed }}</p>
+            <p>Conflict Interest: {{ study.conflictInterest }}</p>
+            <p>Conflict disclosed: {{ study.conflictDislcosed }}</p>
+            <p>Conflict Interest Evidence: {{ study.conflictEvidence }}</p>
+            <p>Score: {{ study.score }}</p>
           </li>
       {% endfor %}
     </ul>

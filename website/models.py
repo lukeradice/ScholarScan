@@ -4,8 +4,6 @@ from . import db
 class Study(db.Model):
     #creating study entity to store study data in once retrieved from a search
     id = db.Column(db.Integer, primary_key=True)
-    searchDepth = db.Column(db.Integer)
-    governmentAffiliation = db.Column(db.Integer)
     title = db.Column(db.String(50))
     abstract = db.Column(db.String(2000))
     pubYear = db.Column(db.Integer)
@@ -13,9 +11,23 @@ class Study(db.Model):
     numCitations = db.Column(db.Integer)
     gsRank = db.Column(db.Integer)
     authorStrings = db.Column(db.String(50))
+    levelOfAffiliation = db.Column(db.Integer)
+    governmentAffiliation = db.Column(db.Boolean)
+    government = db.Column(db.String(30))
+    affiliationNature = db.Column(db.String(50))
+    peerReviewed = db.Column(db.Boolean)
+    noConflictInterest = db.Column(db.Boolean)
+    conflictDisclosed = db.Column(db.Boolean)
+    notExternallyFunded = db.Column(db.Boolean)
+    conflictEvidence = db.Column(db.String(100))
+    publisherRating = db.Column(db.Integer)
+    daysSinceCite = db.Column(db.Integer)
+    citationsOfTopCiters = db.Column(db.Integer)
     government_id = db.Column(db.Integer, db.ForeignKey('government.id'))
     journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
     authors = db.relationship('AuthorStudyLink')
+    dateOfAddition = db.Column(db.Date)
+
 
     def __repr__(self):
         return f'<Study: {self.title}>'
@@ -31,7 +43,7 @@ class Author(db.Model):
     hIndex5y = db.Column(db.Integer)
     i10index = db.Column(db.Integer)
     i10index5y = db.Column(db.Integer)
-    yearsSinceCite = db.Column(db.Integer)
+    daysSinceCite = db.Column(db.Integer)
     careerLength = db.Column(db.Integer)
     organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
