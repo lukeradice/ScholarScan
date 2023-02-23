@@ -90,5 +90,7 @@ class Government(db.Model):
     def __repr__(self):
         return f'<Government: {self.government, self.correspondingDomain}>'
     
-
-
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(10000))
+    dateOfAddition = db.Column(db.Date)

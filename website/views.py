@@ -5,6 +5,10 @@ from flask import Blueprint, render_template, request, flash
 from .search.search import search
 from .search.searchCheck import searchCheck
 from .scoreAndSort.scoreAndSort import scoreAndSort
+from .models import Feedback
+from .search.search import getCurrentYear
+from . import db
+
 
 views = Blueprint("views", __name__)
 
@@ -81,5 +85,11 @@ def scholarScan():
 
 @views.route("/about", methods=["POST", "GET"])
 def about():
+    if request.method == 'POST':
+        feedback = request.form.get("feedback")
+        date = getCurrentYear()
+        new_feedback = Feedback(text=feedback, date=date)
+        db.session.add(new_feedback )
+        db.session.commit()
     return render_template("about.html")
 

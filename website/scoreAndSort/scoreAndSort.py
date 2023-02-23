@@ -1,4 +1,3 @@
-import datetime
 from website.search.search import getCurrentYear
 
 #function which applies filter deductions
@@ -48,11 +47,9 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		# score = filterCheck(study, filters, score, 'fundingDisclosed', 'False', 5, 'fundingDisclosed') 
 		score = filterCheck(study, filters, score, 'governmentAffiliation', 'False', 5, 'governmentAffiliation')		
 		score = filterCheck(study, filters, score, 'minPubYear', '>', 5, 'pubYear')
-		# score = filterCheck(study, filters, score, 'maxDaysSinceCite', '<', 5, 'daysSinceCite')
+		score = filterCheck(study, filters, score, 'maxDaysSinceCite', '<', 5, 'daysSinceCite')
 	
-		#considering press freedom of the corresponding country
-		# if study.government.pressFreedom >= 85:
-		# 	score = 
+		#considering press freedom of the corresponding country will be calculation based on if govAff is true
 
 		# score = booleanScoring(study, score, 'peerReviewed', True, 10)
 		# score = booleanScoring(study, score, 'conflictDisclosed', True, 5)
@@ -64,7 +61,7 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		#was unsuccessful then 0 is used instead for the calculation, preventing an error occuring
 		# score = score + (study.sjrValue or 0)
 		score = score + 0.02*(study.numCitations or 0)
-		# score = score + 0.08*(study.citationsOfTopCiters or 0)
+		score = score + 0.08*(study.citationsOfTopCiters or 0)
 		# score = score + 0.01*(study.reviewRefCount or 0)
 		# score = score + 0.00001*(study.viewCount or 0)
 		#can't find out number of versions, wasn't very meaningful anyway
@@ -85,10 +82,10 @@ def scoreAndSort(searchedStudies, filters, numResults):
 			# score = score + 0.0005*(author.university.uniCitations or 0)*(author.university.uniResearch or 0)*(1/limiter)
 			
 		#rewards old, heavily cited studies
-		# if study.daysSinceCite and study.daysSinceCite < 1:
-		# 	study.daysSinceCite = 1
-		# score = score + 0.01*(studyAge or 0)*(study.numCitations or 0)*(1/(study.daysSinceCite or 1**10))/365
-		# score = score + (3*(1/(study.daysSinceCite or 1** 10)) - 0.5)/365
+		if study.daysSinceCite and study.daysSinceCite < 1:
+			study.daysSinceCite = 1
+		score = score + 0.01*(studyAge or 0)*(study.numCitations or 0)*(1/(study.daysSinceCite or 1**10))/365
+		score = score + (3*(1/(study.daysSinceCite or 1** 10)) - 0.5)/365
 		
 		if (studyAge) == 0:
 			score = score + 1
