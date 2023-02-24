@@ -6,6 +6,7 @@ from scholarly import scholarly
 from datetime import datetime, date
 from bs4 import BeautifulSoup
 import requests
+from website import myProxies
 
 # dummyStudy1 = {'container_type': 'Publication', 'source': "<PublicationSource.PUBLICATION_SEARCH_SNIPPET: 'PUBLICATION_SEARCH_SNIPPET'>", 'bib': {'title': 'Nose picking and nasal carriage of Staphylococcus aureus', 'author': 'Wertheim, Heiman FL and Van Kleef, Menno and Vos, Margreet C and Ott, Alewijn and Verbrugh, Henri A and Fokkens, Wytske', 'pub_year': '2006', 'venue': 'Infection Control & …', 'abstract': 'part of the nose, we considered the habit of nose picking as a  a positive correlation between  nose picking and S. aureus  in a larger cohort with predefined criteria for nose picking.', 
 # 'publisher': 'Cambridge University Press', 'pages': '863--867', 'number': '8', 'volume': '27', 'journal': 'Infection Control \\& Hospital Epidemiology', 'pub_type': 'article', 'bib_id': 'wertheim2006nose'}, 'filled': True, 'gsrank': 1, 'pub_url': 'https://www.cambridge.org/core/journals/infection-control-and-hospital-epidemiology/article/nose-picking-and-nasal-carriage-of-staphylococcus-aureus/DC21FFA771693C772308530D2B1A1452', 'author_id': ['JVFGW64AAAAJ', '', 'RAV-bbIAAAAJ', ''], 'url_scholarbib': '/scholar?hl=en&q=info:KyKH-9mNPpcJ:scholar.google.com/&output=cite&scirp=0&hl=en', 'url_add_sclib': '/citations?hl=en&xsrf=&continue=/scholar%3Fq%3Dnose%2Bpicking%26hl%3Den%26as_sdt%3D0,33&citilm=1&update_op=library_add&info=KyKH-9mNPpcJ&ei=gQ2zY6CMLc6TywSl1LXoCA&json=', 'num_citations': 90, 'citedby_url': '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en', 'url_related_articles': '/scholar?q=related:KyKH-9mNPpcJ:scholar.google.com/&scioq=nose+picking&hl=en&as_sdt=0,33', 'eprint_url': 'https://www.academia.edu/download/46395935/Nose_picking_and_nasal_carriage_of_Staph20160611-15499-1ngo5wz.pdf'}
@@ -28,7 +29,7 @@ def search(searchQuery, studiesAnalysed):
     if studiesAnalysed:
         studiesAnalysed = int(studiesAnalysed)
     else: 
-        studiesAnalysed = 5
+        studiesAnalysed = 2
     #increases search iteratrion to studiesAnalysed if above the planned iterations to meet the requirement
     if studiesAnalysed > searchIterations:
          searchIterations = studiesAnalysed      
@@ -70,11 +71,14 @@ def search(searchQuery, studiesAnalysed):
                 pubYear = int(study.get('bib').get('pub_year'))
                 numCitations = study.get('num_citations')
                 publisher = study.get('bib').get('publisher')
+                if not publisher:
+                    publisher = "Unknown"
                 gsRank = study.get('gsrank')
                 citedByUrl = study.get('citedby_url')
 
-                governmentFind = AttributeHandler()
-                governmentAffiliation = governmentFind.governmentAffiliator(study.get('pub_url'))
+                attributeHandling = AttributeHandler()
+
+                governmentAffiliation = attributeHandling.governmentAffiliator(study.get('pub_url'))
                 levelOfAffiliation = governmentAffiliation.levelOfAffiliation
                 government = governmentAffiliation.government
                 affiliationNature = governmentAffiliation.affiliationNature
@@ -98,16 +102,15 @@ def search(searchQuery, studiesAnalysed):
                 print(study.get('bib').get('author'))
                 authorScholarIDs = study.get('author_id')
                 authors = study.get('bib').get('author')
-                authorList = authors.split(",")
+                authorList = authors.split(" and ")
                 print("list of author ids", authorScholarIDs)
                 print("list of authors", authorList)
                 #NEED TO CONSIDER WHEN THERE IS A BLANK SCRAPE AS PROCESSING IS INVOLVED
-                authorOrgUpdate = AttributeHandler()
-                authorOrgInfo = authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authorList)
+                authorOrgInfo = attributeHandling.authorOrgUpdater(authorScholarIDs, authorList)
                 #authorOrgInfo = authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authorList, i)
 
                 citationUrl = 'https://scholar.google.com/' + citedByUrl
-                html = requests.get(citationUrl)
+                html = requests.get(citationUrl, proxies=myProxies, verify=False)
                 citationPage = BeautifulSoup(html.content, 'html.parser')
 
                 #implementation to calculate the value for the citationsOfTopCiters attribute
@@ -128,14 +131,13 @@ def search(searchQuery, studiesAnalysed):
                     print("MY SCRAPING GOT BLOCKED")
                     citationsOfTopCiters = 0
 
-
                 #need to make sure list index doesn't go out of range, could be few citations that have no number
 
                 #WORKING IMPLEMENTATION TO GET daysSinceCite, need a new URL to sort citations by date
                 citedCode = citedByUrl[15:35]
                 citesByDate_url = 'https://scholar.google.com/scholar?hl=en&as_sdt=5,33&sciodt=0,33&cites=' + citedCode + '&scipsc=&q=&scisbd=1'
                 print(citesByDate_url)
-                html = requests.get(citesByDate_url)
+                html = requests.get(citesByDate_url, proxies=myProxies, verify=False)
                 citedByDatePage = BeautifulSoup(html.content, 'html.parser')
                 results = citedByDatePage.find(id="gs_res_ccl_mid") 
                 if results:
@@ -283,15 +285,21 @@ class AttributeHandler():
         else:
             return GovernmentAffiliationResponse(0, government, False, "Private company", countryToFind.id)
 
-    def citationAttributes(self, citesPerYear, attributeToCalculate):
+    def authorCitationAttributes(self, citesPerYear, attributeToCalculate):
+        currentYear = getCurrentYear()
+        lastYearCited = list(citesPerYear)[-1]
         if attributeToCalculate == "authorYearsSinceCite":
-            currentYear = getCurrentYear()
-            lastYearCited = list(citesPerYear)[-1]
-            daysSinceCite = currentYear - lastYearCited
-            return daysSinceCite
+            yearsSinceCite = currentYear - lastYearCited
+            return yearsSinceCite
         elif attributeToCalculate == "careerLength":
             careerLength = len(citesPerYear)
             return careerLength
+        elif attributeToCalculate == "authorCitationsThisYear":
+            if currentYear == lastYearCited:
+                authorCitationsThisYear = citesPerYear.get(lastYearCited)
+            else:
+                authorCitationsThisYear = 0
+            return authorCitationsThisYear 
 
     def authorOrgUpdater(self, authorScholarIDs, authorList):
         #comparing corresponding author and authorID lists, can only search with authors with AuthorID, think  I'll 
@@ -305,12 +313,12 @@ class AttributeHandler():
             if correspondingID:
                 #condition to add author information if the author name isn't already in the database
                 i = authorScholarIDs.index(correspondingID)
-                if not authorExists(authorList[i]):  
+                authorName = authorList[i]
+                if not authorExists(authorName):  
                     author_query = scholarly.search_author_id(correspondingID)
                     author = scholarly.fill(author_query, sections=['basics', 'indices', 'counts']) 
                     #author = dummyAuthors[i]
                     print(author)
-                    authorName = author.get('name') 
                     authorCitations = author.get('citedby') 
                     authorCitations5y = author.get('citedby5y')
                     hIndex = author.get('hindex')
@@ -319,8 +327,9 @@ class AttributeHandler():
                     i10index5y = author.get('i10index5y')
                     citesPerYear = author.get('cites_per_year')
                     #inside AttributeHandler so functions can be referred to as self.
-                    daysSinceCite = self.citationAttributes(citesPerYear, "authorYearsSinceCite")
-                    careerLength = self.citationAttributes(citesPerYear, "careerLength")
+                    authorYearsSinceCite = self.authorCitationAttributes(citesPerYear, "authorYearsSinceCite")
+                    careerLength = self.authorCitationAttributes(citesPerYear, "careerLength")
+                    authorCitationsThisYear = self.authorCitationAttributes(citesPerYear, "authorCitationsThisYear")
 
                     #adding information about each author's main organisation to the organisation entity, this effects an author's scoring
                     #first checks if it already exists within the database
@@ -334,22 +343,30 @@ class AttributeHandler():
                     print("organisation id", organisation_id)
                     #new author entity record
                     new_author = Author(authorName=authorName, authorCitations=authorCitations, authorCitations5y=authorCitations5y, hIndex=hIndex,
-                                        hIndex5y=hIndex5y, i10index=i10index, i10index5y=i10index5y, daysSinceCite=daysSinceCite, 
-                                        careerLength=careerLength, organisation_id=organisation_id)
+                                        hIndex5y=hIndex5y, i10index=i10index, i10index5y=i10index5y, authorYearsSinceCite=authorYearsSinceCite, 
+                                        careerLength=careerLength, authorCitationsThisYear=authorCitationsThisYear, organisation_id=organisation_id)
                     db.session.add(new_author)
                     db.session.commit()
                 else:
                     authorToFind = Author.query.filter(Author.authorName == authorName).first()
                     authorName = authorToFind.authorName
-                    authorCitations = authorToFind.authorCitations
+                    authorCitations = authorToFind.authorCitations  
+                    authorCitations5y = authorToFind.authorCitations5y
+                    hIndex = authorToFind.hIndex
+                    hIndex5y = authorToFind.hIndex5y
+                    i10index = authorToFind.i10index
+                    i10index5y = authorToFind.i10index5y
+                    authorYearsSinceCite = authorToFind.authorYearsSinceCite
+                    careerLength = authorToFind.careerLength
+                    authorCitationsThisYear = authorToFind.authorCitationsThisYear
                     organisation_id = authorToFind.organisation_id
                     orgToFind = Organisation.query.filter(Organisation.id == organisation_id).first()
                     orgName = orgToFind.orgName
 
-                    #creation of AuthorOrgInfo object to store author/organisation information
-                    newAuthorOrg = AuthorOrgInfo(authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
-                                              i10index5y, citesPerYear, orgName)
-                    authorOrgInfo.append(newAuthorOrg)
+            #creation of AuthorOrgInfo object to store author/organisation information
+            newAuthorOrg = AuthorOrgInfo(authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
+                                              i10index5y, authorYearsSinceCite, careerLength, authorCitationsThisYear, orgName)        
+            authorOrgInfo.append(newAuthorOrg)
         return authorOrgInfo
 
 #used to return two items for the governmentAffiliation method of AttributeHandler object
@@ -413,7 +430,7 @@ class SearchResponse():
 #author object containing all the information that can be presented to the website and have an effect on scoring
 class AuthorOrgInfo():
     def __init__(self, authorName, authorCitations, authorCitations5y, hIndex, hIndex5y, i10index,
-                 i10index5y, daysSinceCite, careerLength, orgName):
+                 i10index5y, authorYearsSinceCite, careerLength, authorCitationsThisYear, orgName):
         self.authorName = authorName
         self.authorCitations = authorCitations
         self.authorCitations5y = authorCitations5y
@@ -421,8 +438,9 @@ class AuthorOrgInfo():
         self.hIndex5y = hIndex5y
         self.i10index = i10index
         self.i10index5y = i10index5y
-        self.daysSinceCite = daysSinceCite
+        self.authorYearsSinceCite = authorYearsSinceCite
         self.careerLength = careerLength
+        self.authorCitationsThisYear = authorCitationsThisYear
         self.orgName = orgName
 
 def getCurrentYear():

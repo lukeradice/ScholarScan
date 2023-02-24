@@ -43,8 +43,9 @@ class Author(db.Model):
     hIndex5y = db.Column(db.Integer)
     i10index = db.Column(db.Integer)
     i10index5y = db.Column(db.Integer)
-    daysSinceCite = db.Column(db.Integer)
+    authorYearsSinceCite = db.Column(db.Integer)
     careerLength = db.Column(db.Integer)
+    authorCitationsThisYear = db.Column(db.Integer)
     organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
 
@@ -94,3 +95,24 @@ class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(10000))
     dateOfAddition = db.Column(db.Date)
+
+    def __repr__(self):
+        return f'<Government: {self.text, self.dateOfAddition}>'
+
+class Journals(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    journalTitle = db.Column(db.String(30))
+    issns = db.Column(db.String(30))
+    sjrScore = db.Column(db.Float)
+    journalHIndex = db.Column(db.Integer)
+    publisherName = db.String(db.String(30))
+
+    def __repr__(self):
+        return f'<Journal: {self.journalTitle}>'
+
+class lastUpdates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lastJournalUpdate = db.Column(db.Date)
+
+    def __repr__(self):
+        return f'<Journal: {self.lastJournalUpdate}>'

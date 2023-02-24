@@ -248,9 +248,9 @@
 .za,South Africa
 .zm,Zambia
 .zw,Zimbabwe
-.com,USA
-.net,USA
-.org,USA
-.gov,USA
-.eu,EU
-.edu,USA
+.com,United States
+.net,United States
+.org,United States
+.gov,United States
+.eu,European Union
+.edu,United States

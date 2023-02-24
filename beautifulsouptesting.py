@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 #d07eb644f66c41a5ebf97168156dc1d5
 #f171d0c5dd2ec4eb81c87ab25875fdd9
 
-proxies = {
+myProxies = {
 "http": "http://scraperapi:d1318296d4d6fc658b1e373287da15fe@proxy-server.scraperapi.com:8001",
 "https": "http://scraperapi:d1318296d4d6fc658b1e373287da15fe@proxy-server.scraperapi.com:8001"
 }
@@ -16,19 +16,19 @@ proxies = {
 #     journalNameWords = journalName.split(" ")
 #     journalSearchAddress = journalNameWords[0]
 #     for word in journalNameWords:
-#         if journalNameWords.index(word) == 0:
-#             pass
+#         if journalNameWords.index(word) == 0 and journalNameWords.index(word) != (len(journalNameWords) - 1):
+#             word = ""
 #         else:
 #             if journalNameWords.index(word) == (len(journalNameWords) - 1):
 #                 word = "%20" + word + "%20"
 #             else:
 #                 word = "%20" + word
-#             journalSearchAddress = journalSearchAddress + word
+#         journalSearchAddress = journalSearchAddress + word
 #     return journalSearchAddress
 
-# # journalName = input("What is the journal name?")
-# # journalSearchAddress = GetJournalSearchAddress(journalName)
-# # print(journalSearchAddress)
+# journalName = input("What is the journal name?")
+# journalSearchAddress = GetJournalSearchAddress(journalName)
+# print(journalSearchAddress)
 
 # citedby_url = '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en'
 # #peerCheckUrl = "https://uh4jc3de5m.search.serialssolutions.com/ejp/?libHash=UH4JC3DE5M#/search/?searchControl=title&searchType=alternate_title_begins&criteria=" + journalSearchAddress + "&language=en-US"
@@ -75,47 +75,47 @@ proxies = {
 # print(scopusUrlOne)
 
 
-def getAuthorNameList(authorList):
-    authorsTogether = ""
-    for author in authorList:
-        authorsTogether = authorsTogether + author
-    realAuthorsList = authorsTogether.split(" and ")
-    return realAuthorsList
-def scopusScrape(authorList):
-    for author in authorList:
-        surnameUpperBound = author.find(" ")
-        surname = author[0:surnameUpperBound]
-        print("surname", surname)
-        firstName = author[surnameUpperBound+1:]
-        if len(firstName.split(" ")) > 1:
-            firstName = firstName.replace(" ", "+")
-        print("first name", firstName)
-        scopusUrlOne = "https://www.scopus.com/results/authorNamesList.uri?sort=count-f&src=al&sot=al&sdt=al&sl=40&s=AUTHLASTNAME%28"+surname+"%29+AND+AUTHFIRST%28"+firstName+"%29&st1="+surname+"&st2="+firstName+"&orcidId=&selectionPageSearch=anl&reselectAuthor=false&activeFlag=true&showDocument=false&resultsPerPage=20&offset=1&jtp=false&currentPage=1&previousSelectionCount=0&tooManySelections=false&previousResultCount=0&authSubject=LFSC&authSubject=HLSC&authSubject=PHSC&authSubject=SOSC&exactAuthorSearch=false&showFullList=false&authorPreferredName=&origin=searchauthorfreelookup&affiliationId="
-        print(scopusUrlOne)
-        html = requests.get(scopusUrlOne, proxies=proxies, verify=False)
-        print(html.text)
-        searchAuthorPage = BeautifulSoup(html.content, 'html.parser')
-        print(searchAuthorPage.body)
-        numberSection = searchAuthorPage.find(id="container")
-        if numberSection:
-            numResults = numberSection.find_all('span', class_="resultsCount")
-            print(numResults)
-            authorResultOne = searchAuthorPage.find(id="resultDataRow1")
-            if authorResultOne:
-                topResult = authorResultOne.find_all(class_="docTitle")
-                topResultLink = topResult.attrs['href']
-                print(topResultLink)
-            else:
-                print("searched blocked, or no results")
-        else:
-            print("searched blocked")
+# def getAuthorNameList(authorList):
+#     authorsTogether = ""
+#     for author in authorList:
+#         authorsTogether = authorsTogether + author
+#     realAuthorsList = authorsTogether.split(" and ")
+#     return realAuthorsList
+# def scopusScrape(authorList):
+#     for author in authorList:
+#         surnameUpperBound = author.find(" ")
+#         surname = author[0:surnameUpperBound]
+#         print("surname", surname)
+#         firstName = author[surnameUpperBound+1:]
+#         if len(firstName.split(" ")) > 1:
+#             firstName = firstName.replace(" ", "+")
+#         print("first name", firstName)
+#         scopusUrlOne = "https://www.scopus.com/results/authorNamesList.uri?sort=count-f&src=al&sot=al&sdt=al&sl=40&s=AUTHLASTNAME%28"+surname+"%29+AND+AUTHFIRST%28"+firstName+"%29&st1="+surname+"&st2="+firstName+"&orcidId=&selectionPageSearch=anl&reselectAuthor=false&activeFlag=true&showDocument=false&resultsPerPage=20&offset=1&jtp=false&currentPage=1&previousSelectionCount=0&tooManySelections=false&previousResultCount=0&authSubject=LFSC&authSubject=HLSC&authSubject=PHSC&authSubject=SOSC&exactAuthorSearch=false&showFullList=false&authorPreferredName=&origin=searchauthorfreelookup&affiliationId="
+#         print(scopusUrlOne)
+#         html = requests.get(scopusUrlOne, proxies=myProxies, verify=False)
+#         print(html.text)
+#         searchAuthorPage = BeautifulSoup(html.content, 'html.parser')
+#         print(searchAuthorPage.body)
+#         numberSection = searchAuthorPage.find(id="container")
+#         if numberSection:
+#             numResults = numberSection.find_all('span', class_="resultsCount")
+#             print(numResults)
+#             authorResultOne = searchAuthorPage.find(id="resultDataRow1")
+#             if authorResultOne:
+#                 topResult = authorResultOne.find_all(class_="docTitle")
+#                 topResultLink = topResult.attrs['href']
+#                 print(topResultLink)
+#             else:
+#                 print("searched blocked, or no results")
+#         else:
+#             print("searched blocked")
 
-listAuthors = ['Flynn', ' Timothy Corcoran and Petros', ' James and Clark', ' Robert E and Viehman', ' Greg E']
-authorList = ['Glick-Bauer', ' Marian and Yeh', ' Ming-Chin']
-realAuthorstwo = ['Marian Glick-Bauer', 'Ming-Chin Yeh']
+# listAuthors = ['Flynn', ' Timothy Corcoran and Petros', ' James and Clark', ' Robert E and Viehman', ' Greg E']
+# authorList = ['Glick-Bauer', ' Marian and Yeh', ' Ming-Chin']
+# realAuthorstwo = ['Marian Glick-Bauer', 'Ming-Chin Yeh']
 
-authorList = getAuthorNameList(listAuthors)
-authorNames = scopusScrape(authorList)
+# authorList = getAuthorNameList(listAuthors)
+# authorNames = scopusScrape(authorList)
 
 
 

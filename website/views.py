@@ -50,7 +50,7 @@ def scholarScan():
             'resultAmount': request.form.get('resultAmount'),
             'minCitations': request.form.get('minCitations'),
             'maxGsRank': request.form.get('maxGsRank'),
-            'daysSinceCite': request.form.get('daysSinceCite'),
+            'maxDaysSinceCite': request.form.get('daysSinceCite'),
             'minPubYear': request.form.get('minPubYear'),
             'minAuthCitations': request.form.get('minAuthCitations'),
             'peerReviewed': None,

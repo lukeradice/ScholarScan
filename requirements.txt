@@ -3,3 +3,4 @@ flask_sqlalchemy
 scholarly
 tldextract
 sqlite3
+bs4

@@ -72,9 +72,9 @@
 </form>
 <br />
 <br />
+  <h1 align="center">Results</h1>
   <div id="load" style="visibility: hidden"></div>
   <div id="contents">
-    <h1 align="center">Results</h1>
     <ul class="list-group-flush", id="results">
       {% for study in searchedAndSortedStudies %}
         <li class="list-group-item line-row li">
@@ -84,19 +84,18 @@
             <p>Publisher: {{ study.publisher }}</p>
             <p>GS rank: {{ study.gsRank }}</p>
             <p>Citations: {{ study.numCitations }}</p>
-            <p>GovLev: {{ study.daysSinceCite }}</p>
-            <p>GovLev: {{ study.citationsOfTopCiters }}</p>
+            <p>Days Since Last Citation: {{ study.daysSinceCite }}</p>
+            <p>Total Citations of Top 3 Publications which Cite it: {{ study.citationsOfTopCiters }}</p>
             <p>Authors: {{ study.authors }}</p>
             <p> Author and organisation information:</p>
-            <!-- {% for dictRow in study.authorOrgInfo %} 
-              <p>{{ dictRow }}</p>
-            {% endfor %} -->
-            <p> {{ authoOrgInfo }} </p>
+            {% for author in study.authorOrgInfo %}
+              <p> {{ author.authorName }} H-index:{{ author.hIndex }} </p>
+            {% endfor %}
             <p>Journal: {{ study.journalInfo }}</p>
             <p>Country: {{ study.government }}</p>
-            <p>GovLev: {{ study.levelOfAffiliation }}</p>
+            <p>Level of Affiliation (government): {{ study.levelOfAffiliation }}</p>
             <p>Gov: {{ study.governmentAffiliation }}</p>
-            <p>GovLev: {{ study.affiliationNature }}</p>
+            <p>Nature of Affiliation: {{ study.affiliationNature }}</p>
             <p>Peer-Review: {{ study.peerReviewed }}</p>
             <p>Conflict Interest: {{ study.conflictInterest }}</p>
             <p>Conflict disclosed: {{ study.conflictDislcosed }}</p>
