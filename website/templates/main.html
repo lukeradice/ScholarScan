@@ -23,32 +23,8 @@
                 Government Affiliation
             </label>
         </div>
-        <div class="form-check ml-2 mb-2">
-            <input class="form-check-input" type="checkbox" value="conflictDisclosed" name="checkbox" id="conflictDisclosed">
-            <label class="form-check-label mb-4" for="conflictDisclosed">
-                Conflict of Interest Disclosed
-            </label>
-        </div>
-        <div class="form-check ml-2 mb-2">
-            <input class="form-check-input" type="checkbox" value="conflictInterest" name="checkbox" id="conflictInterest">
-            <label class="form-check-label mb-4" for="conflictInterest">
-                No Conflict of Interest
-            </label>
-        </div>
-        <div class="form-check ml-2 mb-2">
-            <input class="form-check-input" type="checkbox" value="fundingDisclosed" name="checkbox" id="fundingDisclosed">
-            <label class="form-check-label mb-4" for="fundingDisclosed">
-                External Funding Disclosed
-            </label>
-        </div>
-        <div class="form-check ml-2 mb-2">
-            <input class="form-check-input" type="checkbox" value="notExternallyFunded" name="checkbox" id="notExternallyFunded">
-            <label class="form-check-label mb-4" for="notExternallyFunded">
-                No External Funding
-            </label>
-        </div>
         <div class="form-group ml-2 mb-2">
-            <input class="form-control" name="overNStudies" id="overNStudies" placeholder="Author has over n studies" maxlength="5">
+            <input class="form-control" name="minCareerLength" id="minCareerLength" placeholder="Minnimum author career length" maxlength="5">
         </div>
         <div class="form-group ml-2 mb-2">
           <input class="form-control" name="resultAmount" id="restultAmount" placeholder="No. of search results" maxlength="5">
@@ -78,29 +54,27 @@
     <ul class="list-group-flush", id="results">
       {% for study in searchedAndSortedStudies %}
         <li class="list-group-item line-row li">
-            <p>Title: {{ study.title }}</p>
-            <p>Truncated Abstract: {{ study.abstract }}</p>
-            <p>Publishing Year: {{ study.pubYear }}</p>
-            <p>Publisher: {{ study.publisher }}</p>
-            <p>GS rank: {{ study.gsRank }}</p>
-            <p>Citations: {{ study.numCitations }}</p>
-            <p>Days Since Last Citation: {{ study.daysSinceCite }}</p>
-            <p>Total Citations of Top 3 Publications which Cite it: {{ study.citationsOfTopCiters }}</p>
-            <p>Authors: {{ study.authors }}</p>
-            <p> Author and organisation information:</p>
+            <p><a href = "{{ study.pubUrl }}" > <strong>{{ study.title }}</strong></a> </p>
+            <p><strong>Truncated Abstract:</strong> {{ study.abstract }}</p>
+            <p><strong>Publishing Year:</strong> {{ study.pubYear }}</p>
+            <p><strong>Publisher:</strong> {{ study.publisher }}</p>
+            <p><strong>GS rank:</strong> {{ study.gsRank }}</p>
+            <p><strong>Citations:</strong>{{ study.numCitations }}</p>
+            <p><strong>Authors: </strong>{{ study.authors }}</p>
+            <strong>Author and organisation information:</strong>
             {% for author in study.authorOrgInfo %}
-              <p> {{ author.authorName }} H-index:{{ author.hIndex }} </p>
+              <p>  {{ author.authorName }} H-index:{{ author.hIndex }} </p>
             {% endfor %}
-            <p>Journal: {{ study.journalInfo }}</p>
-            <p>Country: {{ study.government }}</p>
-            <p>Level of Affiliation (government): {{ study.levelOfAffiliation }}</p>
-            <p>Gov: {{ study.governmentAffiliation }}</p>
-            <p>Nature of Affiliation: {{ study.affiliationNature }}</p>
-            <p>Peer-Review: {{ study.peerReviewed }}</p>
-            <p>Conflict Interest: {{ study.conflictInterest }}</p>
-            <p>Conflict disclosed: {{ study.conflictDislcosed }}</p>
-            <p>Conflict Interest Evidence: {{ study.conflictEvidence }}</p>
-            <p>Score: {{ study.score }}</p>
+            {% if study.journalInfo.journalName %}
+              <p><strong>Journal:</strong> {{ study.journalInfo.journalName }}</p>
+              <p><strong>Peer-Review:</strong>{{ study.journalInfo.peerReviewed }}</p>
+            {% else %}
+              <p><strong>Journal:</strong> {{ study.journalInfo.journalUnscrapableName }}</p>
+            {% endif %}
+            <p><strong>Country:</strong> {{ study.government }}</p>
+            <p><strong>Government Affiliation:</strong> {{ study.governmentAffiliation }}</p>
+            <p><strong>Nature of Affiliation: </strong>{{ study.affiliationNature }}</p>
+            <p><strong>Score:</strong> {{ study.score }}</p>
           </li>
       {% endfor %}
     </ul>

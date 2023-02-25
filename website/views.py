@@ -43,7 +43,7 @@ def scholarScan():
 
         #more effiicient/sensical solutions to storage and addage of filters
         filters = {
-            'overNStudies': request.form.get('overNStudies'),
+            'minCareerLength': request.form.get('minCareerLength'),
             'resultAmount': request.form.get('resultAmount'),
             'minCitations': request.form.get('minCitations'),
             'overNStudies': request.form.get('overNStudies'),
@@ -55,13 +55,8 @@ def scholarScan():
             'minAuthCitations': request.form.get('minAuthCitations'),
             'peerReviewed': None,
             'governmentAffiliation': None, 
-            'conflictDisclosed': None,
-            'conflictInterest': None,
-            'fundingDisclosed': None,
-            'notExternallyFunded': None
         }
-        booleanFilters = ["peerReviewed", "governmentAffiliation", "conflictDisclosed", 
-                          "conflictInterest", "fundingDisclosed", "notExternallyFunded"]
+        booleanFilters = ["peerReviewed", "governmentAffiliation"]
         for filter in booleanFilters:
             if filter in checkBoxes:
                 filters[filter] = True

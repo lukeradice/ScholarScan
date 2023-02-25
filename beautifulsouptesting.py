@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-#d1318296d4d6fc658b1e373287da15fe
+    #d1318296d4d6fc658b1e373287da15fe
 #ffe4db9384d81641640ddb6976087dae
 #57465d56ed88087e0fd9239e56ace84b
 #d07eb644f66c41a5ebf97168156dc1d5
@@ -12,23 +12,8 @@ myProxies = {
 "https": "http://scraperapi:d1318296d4d6fc658b1e373287da15fe@proxy-server.scraperapi.com:8001"
 }
 
-# def GetJournalSearchAddress(journalName):
-#     journalNameWords = journalName.split(" ")
-#     journalSearchAddress = journalNameWords[0]
-#     for word in journalNameWords:
-#         if journalNameWords.index(word) == 0 and journalNameWords.index(word) != (len(journalNameWords) - 1):
-#             word = ""
-#         else:
-#             if journalNameWords.index(word) == (len(journalNameWords) - 1):
-#                 word = "%20" + word + "%20"
-#             else:
-#                 word = "%20" + word
-#         journalSearchAddress = journalSearchAddress + word
-#     return journalSearchAddress
 
-# journalName = input("What is the journal name?")
-# journalSearchAddress = GetJournalSearchAddress(journalName)
-# print(journalSearchAddress)
+
 
 # citedby_url = '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en'
 # #peerCheckUrl = "https://uh4jc3de5m.search.serialssolutions.com/ejp/?libHash=UH4JC3DE5M#/search/?searchControl=title&searchType=alternate_title_begins&criteria=" + journalSearchAddress + "&language=en-US"
@@ -136,3 +121,70 @@ myProxies = {
 # 'citedby_url': '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en', 
 # 'url_related_articles': '/scholar?q=related:KyKH-9mNPpcJ:scholar.google.com/&scioq=nose+picking&hl=en&as_sdt=0,33', 
 # 'eprint_url': 'https://www.academia.edu/download/46395935/Nose_picking_and_nasal_carriage_of_Staph20160611-15499-1ngo5wz.pdf'}
+
+#urlOne = http://uh4jc3de5m.search.serialssolutions.com/ejp/?libHash=UH4JC3DE5M#/search/?searchControl=title&searchType=alternate_title_equals&criteria=Journal%20OF%20VISION&titleType=JOURNALS&filterBy=All&beginPage=0&language=en-US
+#urlTwo = http://uh4jc3de5m.search.serialssolutions.com/ejp/?libHash=UH4JC3DE5M#/search/?searchControl=title&searchType=alternate_title_equals&criteria=Nature&titleType=JOURNALS&filterBy=All&beginPage=0&language=en-US
+
+#function to get link to find out if journal is peer reviewed by name
+def peerReviewLinkCheckName(journalName):
+    journalNameWords = journalName.split(" ")
+    journalSearchAddressName = journalNameWords[0]
+    for word in journalNameWords:
+        if journalNameWords.index(word) == 0:
+            word = ""
+        else:
+            word = "%20" + word
+        journalSearchAddressName = journalSearchAddressName + word
+    journalSearchAddressName = "http://uh4jc3de5m.search.serialssolutions.com/ejp/api/1/libraries/UH4JC3DE5M/search/types/alternate_title_equals/"+journalSearchAddressName+"?titleType=JOURNALS&beginPage=0&language=en-US&filterBy=All"
+    return journalSearchAddressName
+
+#function to get link to scrape from for issn of a journal
+def peerReviewLinkCheckIssn(issns):
+    issns = issns.split(",")
+    issnLinks = []   
+    for issn in issns:
+        #making issn whitespace for link
+        issn = issn.replace(" ", "")
+        journalSearchAddressIssn = "http://uh4jc3de5m.search.serialssolutions.com/ejp/api/1/libraries/UH4JC3DE5M/search/types/issn_equals/"+issn+"?titleType=JOURNALS&beginPage=0&language=en-US&filterBy=All"
+
+        issnLinks.append(journalSearchAddressIssn)
+    return issnLinks
+
+journalName = "journal of vision"
+journalSearchAddressName = peerReviewLinkCheckName(journalName)
+issns = "09717218A , 01622439"
+issnList = peerReviewLinkCheckIssn(issns)
+
+import json
+def checkJournalPeerReview(url, checkType):
+    with requests.Session() as s:
+        getJson = s.get(url, proxies=myProxies, verify=False)
+        jsonPage = getJson.text
+        # print(jsonPage)
+        dataDict = json.loads(jsonPage)
+        print(dataDict)
+        #try excepts for if there are no search results for the journal therefore 
+        #the info for whether its peer reviewed or not won't be available
+        #if/elif is for 
+        if checkType == "issn":
+            try:
+                peerReviewCheck = dataDict.get('titles')
+                peerReviewed = peerReviewCheck[0].get('peerReviewed')
+            except IndexError:
+                peerReviewed = "Unknown"
+                print("unknown if peer reviewed")
+        return peerReviewed    
+    
+        
+# checkJournalPeerReview(issnList[1], "issn")
+checkJournalPeerReview(journalSearchAddressName, "name")
+
+# searchJournalPage = BeautifulSoup(html.content, "html.parser")
+#         print(searchJournalPage.title.text)
+#         if searchJournalPage.title.text == "Access Denied":
+#             scrapingStatus = "Blocked"
+#             return scrapingStatus
+#         peerReviewBox = searchJournalPage.find(id="results-peer-reviewed_0")
+#         print(peerReviewBox)
+#         result = peerReviewBox.find_next("span", class_="ng-binding")
+#         print(result.text)

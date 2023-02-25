@@ -16,18 +16,14 @@ class Study(db.Model):
     government = db.Column(db.String(30))
     affiliationNature = db.Column(db.String(50))
     peerReviewed = db.Column(db.Boolean)
-    noConflictInterest = db.Column(db.Boolean)
-    conflictDisclosed = db.Column(db.Boolean)
-    notExternallyFunded = db.Column(db.Boolean)
-    conflictEvidence = db.Column(db.String(100))
-    publisherRating = db.Column(db.Integer)
+    pubUrl = db.Column(db.String)
     daysSinceCite = db.Column(db.Integer)
     citationsOfTopCiters = db.Column(db.Integer)
+    journalUnscrapableName = db.Column(db.String(25))
     government_id = db.Column(db.Integer, db.ForeignKey('government.id'))
-    journal_id = db.Column(db.Integer, db.ForeignKey('journal.id'))
+    journal_id = db.Column(db.Integer, db.ForeignKey('journals.id'))
     authors = db.relationship('AuthorStudyLink')
     dateOfAddition = db.Column(db.Date)
-
 
     def __repr__(self):
         return f'<Study: {self.title}>'
@@ -46,6 +42,8 @@ class Author(db.Model):
     authorYearsSinceCite = db.Column(db.Integer)
     careerLength = db.Column(db.Integer)
     authorCitationsThisYear = db.Column(db.Integer)
+    scholarID = db.Column(db.String(15))
+    dateOfAddition = db.Column(db.Date)
     organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'))
     studies = db.relationship('AuthorStudyLink')
 
@@ -70,15 +68,6 @@ class Organisation(db.Model):
 
     def __repr__(self):
         return f'<Organisation: {self.orgName}>'
-    
-class Journal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    journalName = db.Column(db.String(50))
-    #peerReviewed = db.Column(db.Boolean)
-    studies = db.relationship('Study')
-
-    def __repr__(self):
-        return f'<Journal: {self.journalName}>'
     
 class Government(db.Model):
     #the same goverment will have multiple studies so a separate table must be made for them, also a useful place to store other 
@@ -105,12 +94,14 @@ class Journals(db.Model):
     issns = db.Column(db.String(30))
     sjrScore = db.Column(db.Float)
     journalHIndex = db.Column(db.Integer)
-    publisherName = db.String(db.String(30))
+    publisherName = db.Column(db.String(30))
+    peerReviewed = db.Column(db.String(10))
+    studies = db.relationship('Study')
 
     def __repr__(self):
         return f'<Journal: {self.journalTitle}>'
 
-class lastUpdates(db.Model):
+class Updates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lastJournalUpdate = db.Column(db.Date)
 

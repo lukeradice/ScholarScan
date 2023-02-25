@@ -12,8 +12,8 @@ db = SQLAlchemy()
 #Initialising database and assigning name
 DB_NAME = "studystronghold.db"
 #define the proxies I'll be using to do my own beautiful soup scraping, used in search and here briefly
-myProxies = {"http": "http://scraperapi:556657541da89a70985be0bd8e9874d1@proxy-server.scraperapi.com:8001",
-            "https": "http://scraperapi:556657541da89a70985be0bd8e9874d1@proxy-server.scraperapi.com:8001"}
+myProxies = {"http": "http://scraperapi:108173982421583779fb5c492b921eeb@proxy-server.scraperapi.com:8001",
+            "https": "http://scraperapi:108173982421583779fb5c492b921eeb@proxy-server.scraperapi.com:8001"}
 
 def create_app():
     app = Flask(__name__)
@@ -26,7 +26,9 @@ def create_app():
     db.init_app(app)
     pg = ProxyGenerator() 
     scholarly.use_proxy(pg)
-    success = pg.ScraperAPI('556657541da89a70985be0bd8e9874d1')
+    success = pg.ScraperAPI('108173982421583779fb5c492b921eeb')
+    # success = pg.ScraperAPI('da3fdf0dccb697c212e4e0e716e926de')
+    # success = pg.ScraperAPI('556657541da89a70985be0bd8e9874d1')
     # success = pg.ScraperAPI('d1318296d4d6fc658b1e373287da15fe')
     #success = pg.ScraperAPI('ffe4db9384d81641640ddb6976087dae')
     #success = pg.ScraperAPI('57465d56ed88087e0fd9239e56ace84b')
@@ -40,20 +42,9 @@ def create_app():
     from .views import views
     app.register_blueprint(views, url_prefix="/")
 
-    from .models import Study, Government, AuthorStudyLink, Author, Organisation, Journal, Feedback, Journals, lastUpdates
+    from .models import Study, Government, AuthorStudyLink, Author, Organisation, Feedback, Journals, Updates
     #creation of database and linking it with the app
-    create_database(app)
-
-    #calling of function to update the journal table if it hasn't been updated in a year
-    # with app.app_context():
-    #     #try except is for the state where the database doesn't exist yet
-    #     try:
-            # lastJournalUpdate = lastUpdates.query.all()[0].lastJournalUpdate
-            # todaysDate = date.today()
-            # if todaysDate.days - lastJournalUpdate.days > 365:
-            #     updateJournalinformation(todaysDate)
-        # except IndexError:
-        #     pass
+    create_database(app) 
 
     return app
 
@@ -61,7 +52,7 @@ def create_app():
 #database is created if it doesn't exist, we pass app to make sure the 
 #software knows what the associated software is
 def create_database(app):
-    from .models import Government, Journals, lastUpdates
+    from .models import Government, Journals, Updates
     if not path.exists('website/' + DB_NAME):
         db.create_all(app = app)
         #allows the adding of the domains to the database outside of a view function, a flask sql_alchemy requirement
@@ -101,7 +92,8 @@ def create_database(app):
                 #so will cause an error trying to convert those strings to integers
                 if i != 0:
                     #the extraction of the csv row values that I will store for each Journals record
-                    title = row[2]
+                    #title is upper case so I can query consistently as search is case sensitive with sql alchemy
+                    title = row[2].upper()
                     issns = row[4]
                     sjrScore = int(row[5].replace(",","") or "0")
                     journalHIndex = int(row[7])
@@ -124,20 +116,20 @@ def create_database(app):
                 i = i + 1
             #saving the date the dynamic sjr information was added to the database so it can be checked and updated if past a year
             lastJournalUpdate = date.today()
-            newJournalUpdate = lastUpdates(lastJournalUpdate=lastJournalUpdate)
+            newJournalUpdate = Updates(lastJournalUpdate=lastJournalUpdate)
             db.session.add(newJournalUpdate)
             db.session.commit()
             print(Journals.query.all())
         print('Created Database!')
     else:
         with app.app_context():
-            lastJournalUpdate = lastUpdates.query.all()[0].lastJournalUpdate
+            lastJournalUpdate = Updates.query.all()[0].lastJournalUpdate
             todaysDate = date.today()
             if (todaysDate - lastJournalUpdate).days > 365:
                 updateJournalinformation(todaysDate)
 
 def updateJournalinformation(todaysDate):
-    from .models import Government, Journals, lastUpdates
+    from .models import Government, Journals, Updates
     #url for the csv containing sjr data for scholarly journals
     #this url should be the same every year so don't need to scrape it
     journalUrl ="https://www.scimagojr.com/journalrank.php?out=xls"
@@ -160,14 +152,14 @@ def updateJournalinformation(todaysDate):
         #so will cause an error trying to convert those strings to integers
         if i != 0:
             #the extraction of the csv row values that I will store for each Journals record
-            title = row[2]
+            title = row[2].upper()
             journalToUpdate = db.session.query(Journals).filter(Journals.journalTitle==title)
             journalToUpdate.sjrScore = int(row[5].replace(",","") or "0")
             journalToUpdate.journalHIndex = int(row[7])
             db.session.commit()
         i = i + 1
     #saving the date the dynamic sjr information was added to the database so it can be checked and updated if past a year
-    newJournalUpdate = lastUpdates(lastJournalUpdate=todaysDate)
-    db.session.add(newJournalUpdate)
+    newJournalUpdate = Updates.query.all()
+    newJournalUpdate[0].lastJournalUpdate = todaysDate
     db.session.commit()
     print(Journals.query.all())
