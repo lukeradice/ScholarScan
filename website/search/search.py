@@ -9,23 +9,10 @@ import requests
 from website import myProxies
 import json
 
-# dummyStudy1 = {'container_type': 'Publication', 'source': "<PublicationSource.PUBLICATION_SEARCH_SNIPPET: 'PUBLICATION_SEARCH_SNIPPET'>", 'bib': {'title': 'Nose picking and nasal carriage of Staphylococcus aureus', 'author': 'Wertheim, Heiman FL and Van Kleef, Menno and Vos, Margreet C and Ott, Alewijn and Verbrugh, Henri A and Fokkens, Wytske', 'pub_year': '2006', 'venue': 'Infection Control & …', 'abstract': 'part of the nose, we considered the habit of nose picking as a  a positive correlation between  nose picking and S. aureus  in a larger cohort with predefined criteria for nose picking.', 
-# 'publisher': 'Cambridge University Press', 'pages': '863--867', 'number': '8', 'volume': '27', 'journal': 'Infection Control \\& Hospital Epidemiology', 'pub_type': 'article', 'bib_id': 'wertheim2006nose'}, 'filled': True, 'gsrank': 1, 'pub_url': 'https://www.cambridge.org/core/journals/infection-control-and-hospital-epidemiology/article/nose-picking-and-nasal-carriage-of-staphylococcus-aureus/DC21FFA771693C772308530D2B1A1452', 'author_id': ['JVFGW64AAAAJ', '', 'RAV-bbIAAAAJ', ''], 'url_scholarbib': '/scholar?hl=en&q=info:KyKH-9mNPpcJ:scholar.google.com/&output=cite&scirp=0&hl=en', 'url_add_sclib': '/citations?hl=en&xsrf=&continue=/scholar%3Fq%3Dnose%2Bpicking%26hl%3Den%26as_sdt%3D0,33&citilm=1&update_op=library_add&info=KyKH-9mNPpcJ&ei=gQ2zY6CMLc6TywSl1LXoCA&json=', 'num_citations': 90, 'citedby_url': '/scholar?cites=10898304115650535979&as_sdt=5,33&sciodt=0,33&hl=en', 'url_related_articles': '/scholar?q=related:KyKH-9mNPpcJ:scholar.google.com/&scioq=nose+picking&hl=en&as_sdt=0,33', 'eprint_url': 'https://www.academia.edu/download/46395935/Nose_picking_and_nasal_carriage_of_Staph20160611-15499-1ngo5wz.pdf'}
-
-# dummyStudy2 = {'container_type': 'Publication', 'source': "<PublicationSource.PUBLICATION_SEARCH_SNIPPET: 'PUBLICATION_SEARCH_SNIPPET'>", 'bib': {'title': 'A comparison of compensation for release timing and maximum hand speed in recreational and competitive darts players', 'author': 'Burke, D and Yeadon, F', 'pub_year': '2009', 'venue': 'ISBS-Conference Proceedings Archive', 'abstract': 'The level of accuracy achieved by darts players is dependent on their timing capabilities,   a competitive darts player in a throwing task. The inaccuracy of the throws by both players were', 'booktitle': 'ISBS-Conference Proceedings Archive', 'pub_type': 'inproceedings', 'bib_id': 'burke2009comparison'}, 'filled': True, 'gsrank': 1, 'pub_url': 'https://ojs.ub.uni-konstanz.de/cpa/article/view/3166', 'author_id': ['T_nKvbgAAAAJ', ''], 'url_scholarbib': '/scholar?hl=en&q=info:dfry9K19sYUJ:scholar.google.com/&output=cite&scirp=0&hl=en', 'url_add_sclib': '/citations?hl=en&xsrf=&continue=/scholar%3Fq%3Ddarts%2Bplayers%26hl%3Den%26as_sdt%3D0,33&citilm=1&update_op=library_add&info=dfry9K19sYUJ&ei=1xGzY93FO-iSy9YPlIeUiAU&json=', 'num_citations': 11, 'citedby_url': '/scholar?cites=9633619264014580341&as_sdt=5,33&sciodt=0,33&hl=en', 'url_related_articles': '/scholar?q=related:dfry9K19sYUJ:scholar.google.com/&scioq=darts+players&hl=en&as_sdt=0,33', 'eprint_url': 'https://ojs.ub.uni-konstanz.de/cpa/article/download/3166/2970'}
-
-# dummyAuthor1 = {'container_type': 'Author', 'filled': ['basics', 'indices', 'counts'], 'scholar_id': 'RAV-bbIAAAAJ', 'source': "<AuthorSource.AUTHOR_PROFILE_PAGE: 'AUTHOR_PROFILE_PAGE'>", 'name': 'Margreet Vos', 'url_picture': 'https://scholar.googleusercontent.com/citations?view_op=view_photo&user=RAV-bbIAAAAJ&citpid=2', 'affiliation': 'professor', 'interests': ['infection prevention'], 'email_domain': '@erasmusmc.nl', 'citedby': 15008, 'citedby5y': 7008, 'hindex': 47, 'hindex5y': 34, 
-# 'i10index': 112, 'i10index5y': 81, 'cites_per_year': {1998: 41, 1999: 38, 2000: 53, 2001: 63, 2002: 74, 2003: 79, 2004: 84, 2005: 149, 2006: 239, 2007: 244, 2008: 312, 2009: 403, 2010: 528, 2011: 709, 2012: 805, 2013: 862, 2014: 956, 2015: 1003, 2016: 1030, 2017: 1019, 2018: 1073, 2019: 1248, 2020: 1222, 2021: 1274, 2022: 1148}}
-
-# dummyAuthor2 = {'container_type': 'Author', 'filled': ['basics', 'indices', 'counts'], 'scholar_id': 'T_nKvbgAAAAJ', 'source': "<AuthorSource.AUTHOR_PROFILE_PAGE: 'AUTHOR_PROFILE_PAGE'>", 'name': 'Dave Burke', 'affiliation': 'Loughborough University', 'organization': 16161526096496270291, 'interests': ['biomechanics', 'computer simulation', 'technique', 'variability', 'sport performance'], 'email_domain': '@lboro.ac.uk', 'citedby': 15, 'citedby5y': 7, 'hindex': 1, 'hindex5y': 1, 'i10index': 1, 'i10index5y': 0, 'cites_per_year': {2011: 5, 2012: 1, 2013: 2, 2014: 1, 2015: 1, 2016: 2, 2017: 1, 2018: 2}}
-
-# dummyStudies = [dummyStudy1, dummyStudy2]
-# dummyAuthors = [dummyAuthor1, dummyAuthor2]
-
 def search(searchQuery, studiesAnalysed):
     print(Study.query.all())
     searchedStudies = []
-    searchIterations = 2
+    searchIterations = 5
     if studiesAnalysed:
         studiesAnalysed = int(studiesAnalysed)
     else: 
@@ -43,8 +30,6 @@ def search(searchQuery, studiesAnalysed):
         study = scholarly.fill(studyUnfull)
         print(study)
         if study:
-        # study = dummyStudies[i]
-        # if True:
             #adding information for study entity
             #first checks if it already exists within the database
             title = study.get('bib').get('title')
@@ -133,17 +118,15 @@ def search(searchQuery, studiesAnalysed):
                     journalInfo = JournalInfo(journalUnscrapableName=journalUnscrapableName)
 
                 #adding information for author entity
-                #first checks if it already exists within the database
                 print(study.get('bib').get('author'))
                 authorScholarIDs = study.get('author_id')
                 authorStrings = study.get('bib').get('author')
                 authorList = authorStrings.split(" and ")
                 print("list of author ids", authorScholarIDs)
                 print("list of authors", authorList)
-                #NEED TO CONSIDER WHEN THERE IS A BLANK SCRAPE AS PROCESSING IS INVOLVED
                 authorOrgInfo = attributeHandling.authorOrgUpdater(authorScholarIDs, authorList)
-                #authorOrgInfo = authorOrgUpdate.authorOrgUpdater(authorScholarIDs, authorList, i)
 
+                #generating the URL for the citation page for scraping purposes
                 citationUrl = 'https://scholar.google.com/' + citedByUrl
                 html = requests.get(citationUrl, proxies=myProxies, verify=False)
                 citationPage = BeautifulSoup(html.content, 'html.parser')
@@ -194,12 +177,24 @@ def search(searchQuery, studiesAnalysed):
                     daysSinceCite = 365
 
                 if outOfDate == False:
-                    #creating study entry in database
                     new_study = Study(levelOfAffiliation=levelOfAffiliation, title=title, abstract=abstract, pubYear=pubYear, numCitations=numCitations, 
                                     publisher=publisher, gsRank=gsRank, authorStrings=authorStrings, government_id=government_id, governmentAffiliation=governmentAffiliation, 
                                     affiliationNature=affiliationNature, journal_id=journal_id, journalUnscrapableName=journalUnscrapableName,  
                                     daysSinceCite=daysSinceCite, citationsOfTopCiters=citationsOfTopCiters, dateOfAddition=date.today(), pubUrl=pubUrl)
                     db.session.add(new_study)
+
+                    studyID = db.session.query(Study.id).filter_by(title=title).first()[0] 
+                
+                    # submitting link table entry
+                    # may need a more reliable secondary index than author name, author names could be shared, alternatively I could just set more attributes in the criteria
+                    for author in authorOrgInfo:
+                        authorScholarID = author.scholarID
+                        authorID = db.session.query(Author.id).filter_by(scholarID=authorScholarID).first()[0]
+                        print("authorId", authorID)
+                        new_authorStudyLink = AuthorStudyLink(author_id=authorID, study_id=studyID)
+                        db.session.add(new_authorStudyLink)
+                        db.session.commit()
+                        #creating study entry in database
                 else:
                     #information of study is updated if it is out of date, must be updated rather than deleted to obey
                     #data integrity rules
@@ -217,20 +212,6 @@ def search(searchQuery, studiesAnalysed):
                     fetchedStudy.citationsOfTopCiters = citationsOfTopCiters
                     fetchedStudy.dateOfAddition = date.today()
                 db.session.commit()
-
-                #setting up ID to establish link table relationship between Study and Author entries
-                studyID = db.session.query(Study.id).filter_by(title=title).first()[0] 
-                
-                # submitting link table entry
-                # may need a more reliable secondary index than author name, author names could be shared, alternatively I could just set more attributes in the criteria
-                for author in authorOrgInfo:
-                    authorScholarID = author.scholarID
-                    authorID = db.session.query(Author.id).filter_by(scholarID=authorScholarID).first()[0]
-                    print("authorId", authorID)
-                    new_authorStudyLink = AuthorStudyLink(author_id=authorID, study_id=studyID)
-                    db.session.add(new_authorStudyLink)
-                    db.session.commit()
-
             else:
                 print("ALREADY STORED IN DB, FETCHING INFO")
 
@@ -251,7 +232,6 @@ def search(searchQuery, studiesAnalysed):
                 governmentAffiliation = fetchedStudy.governmentAffiliation
                 affiliationNature = fetchedStudy.affiliationNature
                 government_id = fetchedStudy.government_id
-                authorStrings = fetchedStudy.authors
 
                 db.session.commit()
 
@@ -268,6 +248,7 @@ def search(searchQuery, studiesAnalysed):
                 else:
                     journalUnscrapableName = fetchedStudy.journalUnscrapableName
                     journalInfo = JournalInfo(journalUnscrapableName=journalUnscrapableName)
+                    peerReviewed = "Unknown"
 
                 #getting info about the authors using the author link table
                 study_id = fetchedStudy.id
@@ -319,8 +300,9 @@ def search(searchQuery, studiesAnalysed):
             print("citationsOfTopCiters", citationsOfTopCiters)
             print("peerReviewed", peerReviewed)
             #adding information about the study to searchedStudies list after it has been gathered via scraping or database
-            newStudy = SearchResponse(title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journalInfo, authorStrings, authorOrgInfo, government, 
-                                      governmentAffiliation, affiliationNature, daysSinceCite, citationsOfTopCiters, pubUrl)
+            newStudy = SearchResponse(title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journalInfo, 
+                                      authorStrings, authorOrgInfo, government, governmentAffiliation, affiliationNature, daysSinceCite, 
+                                      citationsOfTopCiters, pubUrl)
             searchedStudies.append(newStudy)
             
             print(Study.query.all())
@@ -440,6 +422,7 @@ class AttributeHandler():
                         fetchedAuthor.authorYearsSinceCite=authorYearsSinceCite 
                         fetchedAuthor.careerLength=careerLength
                         fetchedAuthor.authorCitationsThisYear=authorCitationsThisYear
+                        fetchedAuthor.dateOfAddition = date.today()
                     db.session.commit()
                 else:
                     authorToFind = Author.query.filter(Author.authorName == authorName).first()
@@ -515,17 +498,8 @@ class GovernmentAffiliationResponse():
         self.affiliationNature = affilationNature
         self.government_id = government_id 
 
-# def studyExists(title):
-#     return checkExists(title, Study, "title") 
-
-# def authorExists(name):
-#     return checkExists(name, Author, "authorName")
-
 def organisationExists(orgName):
     return checkExists(orgName, Organisation, "orgName")
-
-# def journalExists(journal):
-#     return checkExists(journal, Journal, "journalName")
 
 #check exists is the implementation for checking if an element is stored in the database,
 # the reason the functions above  
@@ -539,14 +513,14 @@ def checkExists(checkingVariable, relevantEntity, entityColumn):
 
 #class which defines all the data to go with a publication, be presented with it on the website and used to calculate its position
 class SearchResponse():
-    def __init__(self, title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journalInfo, authorStrings, authorOrgInfo, government,
-                 governmentAffiliation, affiliationNature, daysSinceCite, citationsOfTopCiters, pubUrl):
+    def __init__(self, title, abstract, pubYear, numCitations, publisher, gsRank, levelOfAffiliation, journalInfo, 
+                 authorStrings, authorOrgInfo, government,governmentAffiliation, affiliationNature, daysSinceCite, 
+                 citationsOfTopCiters, pubUrl):
         self.title = title
         self.abstract = abstract
         self.pubYear = pubYear
         self.numCitations = numCitations
         self.publisher = publisher
-        #self.publisherRating = publisherRating
         self.gsRank = gsRank
         self.levelOfAffiliation = levelOfAffiliation
         self.journalInfo = journalInfo
@@ -558,10 +532,6 @@ class SearchResponse():
         self.daysSinceCite=daysSinceCite
         self.citationsOfTopCiters=citationsOfTopCiters
         self.pubUrl = pubUrl
-        # self.noConflictInterest = noConflictInterest
-        # self.conflictDisclosed = conflictDisclosed
-        # self.notExternallyFunded = notExternallyFunded
-        # self.conflictEvidence = conflictEvidence
         
 #author object containing all the information that can be presented to the website and have an effect on scoring
 class AuthorOrgInfo():
@@ -582,7 +552,8 @@ class AuthorOrgInfo():
         self.scholarID = scholarID
 
 class JournalInfo():
-    def __init__(self, journalName=None, journalUnscrapableName=None ,issns=None, sjrScore=0, journalHIndex=0, publisherName=None, peerReviewed=None):
+    def __init__(self, journalName=None, journalUnscrapableName=None ,issns=None, sjrScore=0, 
+                 journalHIndex=0, publisherName=None, peerReviewed=None):
         self.journalName = journalName
         self.journalUnscrapableName = journalUnscrapableName
         self.issns = issns

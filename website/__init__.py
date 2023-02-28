@@ -12,8 +12,8 @@ db = SQLAlchemy()
 #Initialising database and assigning name
 DB_NAME = "studystronghold.db"
 #define the proxies I'll be using to do my own beautiful soup scraping, used in search and here briefly
-myProxies = {"http": "http://scraperapi:108173982421583779fb5c492b921eeb@proxy-server.scraperapi.com:8001",
-            "https": "http://scraperapi:108173982421583779fb5c492b921eeb@proxy-server.scraperapi.com:8001"}
+myProxies = {"http": "http://scraperapi:2d9a4bc87b16814994c35ba47e0fa883@proxy-server.scraperapi.com:8001",
+            "https": "http://scraperapi:2d9a4bc87b16814994c35ba47e0fa883@proxy-server.scraperapi.com:8001"}
 
 def create_app():
     app = Flask(__name__)
@@ -26,7 +26,7 @@ def create_app():
     db.init_app(app)
     pg = ProxyGenerator() 
     scholarly.use_proxy(pg)
-    success = pg.ScraperAPI('108173982421583779fb5c492b921eeb')
+    success = pg.ScraperAPI('2d9a4bc87b16814994c35ba47e0fa883')
     # success = pg.ScraperAPI('da3fdf0dccb697c212e4e0e716e926de')
     # success = pg.ScraperAPI('556657541da89a70985be0bd8e9874d1')
     # success = pg.ScraperAPI('d1318296d4d6fc658b1e373287da15fe')

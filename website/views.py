@@ -6,7 +6,7 @@ from .search.search import search
 from .search.searchCheck import searchCheck
 from .scoreAndSort.scoreAndSort import scoreAndSort
 from .models import Feedback
-from .search.search import getCurrentYear
+from datetime import datetime, date
 from . import db
 
 
@@ -16,37 +16,16 @@ views = Blueprint("views", __name__)
 @views.route("/", methods=["POST", "GET"])
 def scholarScan():
     if request.method == 'POST':
-        #retrieving the values of the non-checkbox filters from the active web form search request
+        
         searchQuery = request.form.get('searchQuery')
-        # overNStudies = request.form.get('overNStudies')
-        # resultAmount = request.form.get('resultAmount')
-        # minCitations = request.form.get('minCitations')
-        # maxGsRank = request.form.get('maxGsRank')
-        # minVersions = request.form.get('minVersions')
-        # daysSinceCite = request.form.get('daysSinceCite')
-        # minPubYear = request.form.get('minPubYear')
-        # minAuthCitations = request.form.get('minAuthCitations')
 
         #retrieving and determining the values of the checkbox filters
         checkBoxes = request.form.getlist('checkbox')
-        # if "peerReviewed" in checkBoxes:
-        #     peerReviewed = True
-        # else:
-        #     peerReviewed = False
-        # if "governmentAffiliation" in checkBoxes:
-        #     governmentAffiliation = True
-        # else:
-        #     governmentAffiliation = False
-        
-        #little for loop which determines boolean values based off its 
-        # corresponding checkbox input
 
+        #retrieving the values of the non-checkbox filters from the active web form search request
         #more effiicient/sensical solutions to storage and addage of filters
         filters = {
             'minCareerLength': request.form.get('minCareerLength'),
-            'resultAmount': request.form.get('resultAmount'),
-            'minCitations': request.form.get('minCitations'),
-            'overNStudies': request.form.get('overNStudies'),
             'resultAmount': request.form.get('resultAmount'),
             'minCitations': request.form.get('minCitations'),
             'maxGsRank': request.form.get('maxGsRank'),
@@ -56,6 +35,7 @@ def scholarScan():
             'peerReviewed': None,
             'governmentAffiliation': None, 
         }
+
         booleanFilters = ["peerReviewed", "governmentAffiliation"]
         for filter in booleanFilters:
             if filter in checkBoxes:
@@ -64,17 +44,18 @@ def scholarScan():
                 filters[filter] = False
 
         #input validation
-        validation = searchCheck(searchQuery, filters.get('minCitations'), filters.get('maxGsRank'), 
-            filters.get('minVersions'), filters.get('daysSinceCite'), filters.get('minPubYear'), 
-            filters.get('minAuthCitations'), filters.get('resultAmount'), filters.get('overNStudies'))
+        validation = searchCheck(searchQuery, filters.get('minCitations'), filters.get('maxGsRank'), filters.get('maxDaysSinceCite'),
+                                filters.get('minPubYear'), filters.get('minAuthCitations'), filters.get('resultAmount'),
+                                filters.get('minCareerLength'))
         if validation:
             #search is intiated
             flash("Search completed", category="success")
             #changes to search function arguments
+            print(datetime.now())
             searchedStudies = search(searchQuery, filters.get('maxGsRank')) 
             searchedAndSortedStudies = scoreAndSort(searchedStudies, filters, filters.get('resultAmount'))
+            print(datetime.now())
             return render_template("main.html", searchedAndSortedStudies=searchedAndSortedStudies)
-            #some sort of reset needed, as you want the ability to reinput need understanding of decorator, flashing of error will occur in searchCheck module
         
     return render_template("main.html", searchedandSortedStudies=[])
 
@@ -82,9 +63,10 @@ def scholarScan():
 def about():
     if request.method == 'POST':
         feedback = request.form.get("feedback")
-        date = getCurrentYear()
-        new_feedback = Feedback(text=feedback, date=date)
+        todaysDate = date.today()
+        new_feedback = Feedback(text=feedback, dateOfAddition=todaysDate)
         db.session.add(new_feedback )
         db.session.commit()
+        print(Feedback.query.all())
     return render_template("about.html")
 

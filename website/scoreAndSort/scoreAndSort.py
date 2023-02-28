@@ -11,7 +11,7 @@ def filterCheck(obj, filters, score, filter, condition, concernedVariable, n , l
 				score = score - n
 				print("filterCheck", -n)	
 	elif condition == '>':
-			if filters[filter] != "" and filters.get(filter) > getattr(obj, concernedVariable):
+			if filters[filter] != "" and int(filters.get(filter)) > getattr(obj, concernedVariable):
 				if limiter:
 					score = score - n*(1/limiter)
 					print("filterCheck", -n*(1/limiter))
@@ -19,7 +19,7 @@ def filterCheck(obj, filters, score, filter, condition, concernedVariable, n , l
 					score = score - n	
 					print("filterCheck", -n)
 	elif condition == '<':
-			if filters[filter] != "" and filters.get(filter) < getattr(obj, concernedVariable):
+			if filters[filter] != "" and int(filters.get(filter)) < getattr(obj, concernedVariable):
 				score = score - n
 				print("filterCheck", -n)
 				
@@ -31,7 +31,7 @@ def booleanScoring(study, score, concernedVariable, condition, addage):
 			score = score + addage
 			print("booleanCheck", addage)
 		#some values will have a None value, it's important no scoring is done then
-		elif getattr(study, concernedVariable) != "Unknown":
+		elif getattr(study, concernedVariable) != "Unknown" and getattr(study, concernedVariable) != None:
 			score = score - addage
 			print("booleanCheck", -addage)
 		return score
@@ -50,12 +50,11 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		studyAge = currentYear - study.pubYear
 
 		#if statements that take away score for not meeting filters
-		score = filterCheck(study, filters, score, 'peerReviewed', 'False', 50, 'peerReviewed')
-		score = filterCheck(study, filters, score, 'governmentAffiliation', False, 50, 'governmentAffiliation')
-		score = filterCheck(study, filters, score, 'minCitations', '>', 50, 'numCitations')
-		score = filterCheck(study, filters, score, 'governmentAffiliation', 'False', 50, 'governmentAffiliation')		
-		score = filterCheck(study, filters, score, 'minPubYear', '>', 50, 'pubYear')
-		score = filterCheck(study, filters, score, 'maxDaysSinceCite', '<', 50, 'daysSinceCite')
+		score = filterCheck(study, filters, score, 'peerReviewed', 'False', 'peerReviewed', 50)
+		score = filterCheck(study, filters, score, 'governmentAffiliation', False, 'governmentAffiliation', 50)
+		score = filterCheck(study, filters, score, 'minCitations', '>', 'numCitations', 50)
+		score = filterCheck(study, filters, score, 'minPubYear', '>', 'pubYear', 50)
+		score = filterCheck(study, filters, score, 'maxDaysSinceCite', '<', 'daysSinceCite', 50)
 	
 		#considering press freedom of the corresponding country will be calculation based on if govAff is true
 
@@ -68,9 +67,9 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		score = score + 0.1*(study.journalInfo.journalHIndex or 0)
 		print(searchedStudies.index(study), 0.1*(study.journalInfo.journalHIndex or 0))
 		score = score + 0.02*(study.numCitations or 0)
-		print(searchedStudies.index(study), 0.1*(study.numCitations or 0))
+		print(searchedStudies.index(study), 0.02*(study.numCitations or 0))
 		score = score + 0.08*(study.citationsOfTopCiters or 0)
-		print(searchedStudies.index(study), 0.07*(study.citationsOfTopCiters or 0))
+		print(searchedStudies.index(study), 0.08*(study.citationsOfTopCiters or 0))
 		# score = score + 0.01*(study.reviewRefCount or 0)
 		# score = score + 0.00001*(study.viewCount or 0)
 		#can't find out number of versions, wasn't very meaningful anyway
@@ -85,23 +84,23 @@ def scoreAndSort(searchedStudies, filters, numResults):
 			score = filterCheck(author, filters, score, 'minAuthCitations', '>', 'authorCitations', 5, limiter)
 			score = filterCheck(author, filters, score, 'minCareerLength', '>', 'careerLength',5, limiter)
 			score = score + 1.25*(author.hIndex or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.125*(author.hIndex or 0)*(1/limiter))
+			print(searchedStudies.index(study), 1.25*(author.hIndex or 0)*(1/limiter))
 			score = score + 4*(author.i10index or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.4*(author.i10index or 0)*(1/limiter))
+			print(searchedStudies.index(study), 4*(author.i10index or 0)*(1/limiter))
 			score = score + (author.hIndex5y or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.1*(author.hIndex5y or 0)*(1/limiter))
+			print(searchedStudies.index(study), (author.hIndex5y or 0)*(1/limiter))
 			score = score + 3.2*(author.i10index5y or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.32*(author.i10index5y or 0)*(1/limiter))
+			print(searchedStudies.index(study), 3.2*(author.i10index5y or 0)*(1/limiter))
 			score = score + 0.1*(author.authorCitations or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.01*(author.authorCitations or 0)*(1/limiter))
+			print(searchedStudies.index(study), 0.1*(author.authorCitations or 0)*(1/limiter))
 			score = score + 0.08*(author.authorCitations5y or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.008*(author.authorCitations5y or 0)*(1/limiter))
+			print(searchedStudies.index(study), 0.08*(author.authorCitations5y or 0)*(1/limiter))
 			score = score + 0.01*(author.careerLength or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.001*(author.careerLength or 0)*(1/limiter))
+			print(searchedStudies.index(study), 0.01*(author.careerLength or 0)*(1/limiter))
 			score = score + 0.1*(author.authorCitationsThisYear or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.01*(author.authorCitationsThisYear or 0)*(1/limiter))
+			print(searchedStudies.index(study), 0.1*(author.authorCitationsThisYear or 0)*(1/limiter))
 			score = score + 0.01*(author.authorYearsSinceCite or 0)*(1/limiter)
-			print(searchedStudies.index(study), 0.001*(author.authorYearsSinceCite or 0)*(1/limiter))
+			print(searchedStudies.index(study), 0.01*(author.authorYearsSinceCite or 0)*(1/limiter))
 			# score = score + 0.0005*(author.university.uniCitations or 0)*(author.university.uniResearch or 0)*(1/limiter)
 			
 		#rewards old, heavily cited studies
@@ -110,7 +109,7 @@ def scoreAndSort(searchedStudies, filters, numResults):
 		score = score + 5*(studyAge or 0)*(study.numCitations or 0)*(1/(study.daysSinceCite or 1**10))/365
 		print(searchedStudies.index(study), 5*(studyAge or 0)*(study.numCitations or 0)*(1/(study.daysSinceCite or 1**10))/365)
 		score = score + (3000*(1/(study.daysSinceCite or 1**10)) - 0.05)/365
-		print(searchedStudies.index(study), (3000*(1/(study.daysSinceCite or 1** 10)) - 0.05)/365)
+		print(searchedStudies.index(study), (3000*(1/(study.daysSinceCite or 1**10)) - 0.05)/365)
 		
 		if (studyAge) == 0:
 			score = score + 15

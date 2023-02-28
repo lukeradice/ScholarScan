@@ -86,7 +86,7 @@ class Feedback(db.Model):
     dateOfAddition = db.Column(db.Date)
 
     def __repr__(self):
-        return f'<Government: {self.text, self.dateOfAddition}>'
+        return f'<Feedback: {self.text, self.dateOfAddition}>'
 
 class Journals(db.Model):
     id = db.Column(db.Integer, primary_key=True)
